@@ -137,18 +137,23 @@
 
         /* Dynamische Schriftgröße: Clamp angepasst an Brüche (die höher sind als normale Zahlen) */
         .question {
-            font-size: clamp(1.2rem, 3vh, 2.5rem);
-            margin-bottom: 2px;
+            font-size: clamp(1rem, 2.5vh, 2.2rem);
+            margin-bottom: 12px;
             color: var(--accent-color);
+            transition: opacity 0.3s ease;
+        }
+
+        .show-sol .question {
+            opacity: 0.3; /* Aufgabe verblasst */
         }
 
         .solution {
-            font-size: clamp(1.2rem, 3vh, 2.5rem);
+            font-size: clamp(1rem, 2.5vh, 2.2rem);
             color: #27ae60; /* Grün für Lösung */
             font-weight: bold;
             border-top: 2px dashed #ccc;
             width: 80%;
-            padding-top: 2px;
+            padding-top: 12px;
             visibility: hidden; /* Platz reservieren! */
         }
 
@@ -227,9 +232,11 @@
             card.className = 'task-card';
             card.onclick = () => card.classList.toggle('show-sol');
             
+            const letter = String.fromCharCode(65 + i); // 65 ist 'A' im ASCII-Code
+            
             // Aufbau: Nummer links oben, Frage mitte, Lösung unten
             card.innerHTML = `
-                <div class="task-num">${i+1}</div>
+                <div class="task-num">${letter}</div>
                 <div class="question">\\(${t.q}\\)</div>
                 <div class="solution">\\(${t.a}\\)</div>
             `;
