@@ -40,10 +40,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
             background: rgba(0,0,0,0.05);
             border-bottom: 3px solid var(--accent-color);
             box-sizing: border-box;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         h1 {
@@ -51,6 +57,7 @@
             margin: 0;
             color: var(--accent-color);
             max-width: 200px;
+            line-height: 1.1;
         }
 
         .timer-container {
@@ -74,7 +81,7 @@
 
         .controls button {
             cursor: pointer;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             border: 2px solid var(--accent-color);
             background: white;
@@ -82,11 +89,20 @@
             font-size: 0.9rem;
             color: var(--accent-color);
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .controls button:hover {
             background: #eee;
             transform: scale(1.05);
+        }
+
+        .back-btn {
+            background: var(--accent-color) !important;
+            color: white !important;
+            font-size: 1.2rem !important;
         }
 
         main {
@@ -151,7 +167,7 @@
             visibility: visible;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             h1 { display: none; }
         }
     </style>
@@ -159,7 +175,12 @@
 <body>
 
 <header>
-    <h1>Dezimalzahlen Multiplizieren & Dividieren</h1>
+    <div class="header-left">
+        <div class="controls">
+            <button class="back-btn" onclick="history.back()" title="Zurück">←</button>
+        </div>
+        <h1>Dezimalzahlen Multiplizieren & Dividieren</h1>
+    </div>
     
     <div class="timer-container">
         <div class="controls">
@@ -183,7 +204,6 @@
 
 <script>
     const tasks = [
-        // Level 1: Multiplikation mit 10, 100 oder einfachen Faktoren (2, 3, 5)
         { q: "0,5 \\cdot 2", a: "1" },
         { q: "0,3 \\cdot 10", a: "3" },
         { q: "1,2 \\cdot 3", a: "3,6" },
@@ -191,7 +211,6 @@
         { q: "1,5 \\cdot 2", a: "3" },
         { q: "0,4 \\cdot 5", a: "2" },
 
-        // Level 2: Division durch einfache ganze Zahlen
         { q: "0,6 : 2", a: "0,3" },
         { q: "1,5 : 3", a: "0,5" },
         { q: "4,5 : 10", a: "0,45" },
@@ -199,7 +218,6 @@
         { q: "0,12 : 3", a: "0,04" },
         { q: "1,0 : 5", a: "0,2" },
 
-        // Level 3: Höhere Anforderungen (Dividend komplexer, Divisor natürlich)
         { q: "0,2 \\cdot 0,3", a: "0,06" },
         { q: "0,5 \\cdot 0,5", a: "0,25" },
         { q: "0,36 : 4", a: "0,09" },
@@ -214,14 +232,11 @@
     function initGrid() {
         const grid = document.getElementById('task-grid');
         grid.innerHTML = '';
-        
-        // Buchstaben-Array für die Nummerierung A, B, C...
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         
         tasks.forEach((task, index) => {
             const card = document.createElement('div');
             card.className = 'task-card';
-            // Buchstabe statt Nummer verwenden
             const label = alphabet[index] || (index + 1);
             
             card.innerHTML = `
