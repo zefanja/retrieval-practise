@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Grid: Quader</title>
+    <style>
+        :root {
+            --bg-color: #EDE7F6;
+            --card-bg: #ffffff;
+            --accent-color: #4527a0;
+            --timer-bg: #fff;
+            --timer-alert: #e74c3c;
+            --sol-color: #6a1b9a;
+            --unknown-color: #c62828;
+            --vol-bar: #1565c0;
+            --side-bar: #bf360c;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        header {
+            height: 70px; flex-shrink: 0;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            background: rgba(0,0,0,0.05);
+            border-bottom: 3px solid var(--accent-color);
+            box-sizing: border-box;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        h1 {
+            font-size: 1.05rem; margin: 0;
+            color: var(--accent-color);
+            max-width: 220px; line-height: 1.2;
+        }
+
+        .timer-container { display: flex; align-items: center; gap: 10px; }
+
+        #timer-display {
+            font-family: 'Courier New', monospace;
+            font-size: 2.2rem; font-weight: bold;
+            background: var(--timer-bg); color: var(--accent-color);
+            padding: 2px 15px; border-radius: 8px;
+            border: 3px solid var(--accent-color);
+            min-width: 120px; text-align: center;
+        }
+
+        .controls button {
+            cursor: pointer; padding: 8px 12px;
+            border-radius: 6px; border: 2px solid var(--accent-color);
+            background: white; font-weight: bold;
+            font-size: 0.9rem; color: var(--accent-color);
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .controls button:hover { background: #eee; transform: scale(1.05); }
+        .back-btn {
+            background: var(--accent-color) !important;
+            color: white !important; font-size: 1.2rem !important;
+        }
+
+        main {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px; padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* ── Card ─────────────────────────────────────────────────────────── */
+        .task-card {
+            background: var(--card-bg);
+            border: 3px solid var(--accent-color);
+            border-radius: 12px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            padding: 30px 12px 10px;
+            gap: 0;
+            overflow: hidden;
+        }
+        .task-card:hover { background-color: #f5f0ff; }
+
+        /* coloured top bar */
+        .task-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 7px; border-radius: 9px 9px 0 0;
+        }
+        .type-vol::before  { background: var(--vol-bar); }
+        .type-side::before { background: var(--side-bar); }
+
+        /* letter label */
+        .task-num {
+            position: absolute; top: 11px; left: 10px;
+            font-size: 1.1rem; font-weight: bold; color: var(--accent-color);
+        }
+
+        /* badge */
+        .type-badge {
+            position: absolute; top: 11px; right: 9px;
+            font-size: 0.6rem; font-weight: bold;
+            padding: 2px 7px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .type-vol  .type-badge { background: #bbdefb; color: var(--vol-bar); }
+        .type-side .type-badge { background: #ffccbc; color: var(--side-bar); }
+
+        /* ── Dimensions block ─────────────────────────────────────────────── */
+        .dims {
+            display: flex; flex-direction: column; align-items: flex-start;
+            font-size: clamp(0.85rem, 2.1vh, 1.25rem);
+            color: var(--accent-color); line-height: 1.65; width: 100%;
+            padding: 0 16px; box-sizing: border-box;
+        }
+        .dim-label { font-weight: 700; }
+        .dim-unknown { color: var(--unknown-color); font-weight: 700; }
+
+        /* known volume line (side tasks) */
+        .vol-known {
+            font-size: clamp(0.78rem, 1.8vh, 1.05rem);
+            color: #555; padding: 2px 16px 0; width: 100%; box-sizing: border-box;
+        }
+
+        /* what to find */
+        .goal-line {
+            margin-top: 6px;
+            font-size: clamp(0.85rem, 2.1vh, 1.25rem);
+            font-weight: 700; color: var(--unknown-color);
+            border-top: 1px dashed #ccc;
+            padding-top: 5px; width: calc(100% - 32px); text-align: center;
+        }
+
+        /* draw reminder – stays visible even after reveal */
+        .draw-hint {
+            margin-top: 5px;
+            font-size: clamp(0.6rem, 1.4vh, 0.82rem);
+            color: #aaa;
+        }
+
+        /* ── Solution ─────────────────────────────────────────────────────── */
+        .solution {
+            visibility: hidden;
+            display: flex; flex-direction: column; align-items: center;
+            border-top: 2px dashed #ddd;
+            width: calc(100% - 24px);
+            margin-top: 8px; padding-top: 5px;
+            gap: 1px;
+        }
+        .sol-calc {
+            font-size: clamp(0.7rem, 1.55vh, 0.95rem);
+            color: #888;
+        }
+        .sol-result {
+            font-size: clamp(0.9rem, 2.2vh, 1.35rem);
+            font-weight: 700; color: var(--sol-color);
+        }
+
+        /* on click: fade content, show solution */
+        .show-sol .dims,
+        .show-sol .vol-known,
+        .show-sol .goal-line  { opacity: 0.15; }
+        .show-sol .solution   { visibility: visible; }
+        /* draw-hint intentionally stays full opacity */
+
+        @media (max-width: 900px) { h1 { display: none; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <div class="controls">
+            <button class="back-btn" onclick="history.back()" title="Zurück">←</button>
+        </div>
+        <h1>Quader – Volumen &amp; fehlende Seiten</h1>
+    </div>
+
+    <div class="timer-container">
+        <div class="controls"><button onclick="adjustTime(-60)">-1m</button></div>
+        <div id="timer-display">15:00</div>
+        <div class="controls">
+            <button onclick="adjustTime(60)">+1m</button>
+            <button id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
+            <button onclick="resetTimer()">↻</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="toggleAllSolutions()">👁 Lösungen</button>
+        <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+</header>
+
+<main id="task-grid"></main>
+
+<script>
+    /*
+     * type "vol"  → alle Seiten bekannt, V gesucht
+     * type "side" → V bekannt, eine Seite (null) gesucht
+     */
+    const tasks = [
+        // ── Volumen berechnen ────────────────────────────────────────────────
+        { type:"vol",  a:"4",  b:"3",  c:"2",  unit:"cm",
+          solCalc:"V = 4 · 3 · 2",   solResult:"V = 24 cm³" },
+        { type:"vol",  a:"5",  b:"5",  c:"2",  unit:"cm",
+          solCalc:"V = 5 · 5 · 2",   solResult:"V = 50 cm³" },
+        { type:"vol",  a:"6",  b:"4",  c:"3",  unit:"cm",
+          solCalc:"V = 6 · 4 · 3",   solResult:"V = 72 cm³" },
+        { type:"vol",  a:"3",  b:"3",  c:"3",  unit:"cm",
+          solCalc:"V = 3 · 3 · 3",   solResult:"V = 27 cm³" },
+        { type:"vol",  a:"8",  b:"5",  c:"4",  unit:"cm",
+          solCalc:"V = 8 · 5 · 4",   solResult:"V = 160 cm³" },
+
+        // ── Fehlende Seite berechnen ─────────────────────────────────────────
+        { type:"side", a:"5",  b:"4",  c:null, unit:"cm", vol:"40",
+          solCalc:"c = 40 : (5 · 4)",  solResult:"c = 2 cm" },
+        { type:"side", a:null, b:"6",  c:"3",  unit:"cm", vol:"54",
+          solCalc:"a = 54 : (6 · 3)",  solResult:"a = 3 cm" },
+        { type:"side", a:"8",  b:null, c:"5",  unit:"cm", vol:"200",
+          solCalc:"b = 200 : (8 · 5)", solResult:"b = 5 cm" },
+        { type:"side", a:"6",  b:"5",  c:null, unit:"cm", vol:"90",
+          solCalc:"c = 90 : (6 · 5)",  solResult:"c = 3 cm" },
+    ];
+
+    let timeLeft = 900;
+    let timerInterval = null;
+
+    function dimHTML(val, label, unit) {
+        if (val === null) {
+            return `<div><span class="dim-label">${label}</span> = <span class="dim-unknown">?</span></div>`;
+        }
+        return `<div><span class="dim-label">${label}</span> = ${val} ${unit}</div>`;
+    }
+
+    function initGrid() {
+        const grid = document.getElementById('task-grid');
+        grid.innerHTML = '';
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        tasks.forEach((task, index) => {
+            const card = document.createElement('div');
+            const label = alphabet[index];
+            card.className = `task-card type-${task.type}`;
+
+            const missingVar = task.a === null ? 'a' : task.b === null ? 'b' : 'c';
+            const badgeText  = task.type === 'vol' ? 'V gesucht' : 'Seite gesucht';
+            const goalText   = task.type === 'vol' ? 'V = ?' : `${missingVar} = ?`;
+
+            const volKnownHTML = task.type === 'side'
+                ? `<div class="vol-known">V = ${task.vol} ${task.unit}³</div>`
+                : '';
+
+            card.innerHTML = `
+                <div class="task-num">${label}</div>
+                <div class="type-badge">${badgeText}</div>
+                <div class="dims">
+                    ${dimHTML(task.a, 'a', task.unit)}
+                    ${dimHTML(task.b, 'b', task.unit)}
+                    ${dimHTML(task.c, 'c', task.unit)}
+                </div>
+                ${volKnownHTML}
+                <div class="goal-line">${goalText}</div>
+                <div class="draw-hint">✏️ Schrägbild zeichnen</div>
+                <div class="solution">
+                    <div class="sol-calc">${task.solCalc}</div>
+                    <div class="sol-result">${task.solResult}</div>
+                </div>
+            `;
+
+            card.onclick = () => card.classList.toggle('show-sol');
+            grid.appendChild(card);
+        });
+    }
+
+    function updateTimerDisplay() {
+        const min = Math.floor(timeLeft / 60).toString().padStart(2,'0');
+        const sec = (timeLeft % 60).toString().padStart(2,'0');
+        const d = document.getElementById('timer-display');
+        d.innerText = `${min}:${sec}`;
+        d.style.backgroundColor = timeLeft === 0 ? 'var(--timer-alert)' : 'var(--timer-bg)';
+        d.style.color = timeLeft === 0 ? 'white' : 'var(--accent-color)';
+    }
+
+    function toggleTimer() {
+        const btn = document.getElementById('startStopBtn');
+        if (timerInterval) {
+            clearInterval(timerInterval); timerInterval = null;
+            btn.innerText = "▶ Start";
+        } else {
+            if (timeLeft <= 0) return;
+            btn.innerText = "Ⅱ Pause";
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval); timerInterval = null;
+                    btn.innerText = "▶ Start";
+                }
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        if (timerInterval) toggleTimer();
+        timeLeft = 900; updateTimerDisplay();
+    }
+
+    function adjustTime(amount) {
+        timeLeft = Math.max(0, timeLeft + amount); updateTimerDisplay();
+    }
+
+    function toggleAllSolutions() {
+        const cards = document.querySelectorAll('.task-card');
+        const anyVisible = [...cards].some(c => c.classList.contains('show-sol'));
+        cards.forEach(c => anyVisible
+            ? c.classList.remove('show-sol')
+            : c.classList.add('show-sol'));
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else if (document.exitFullscreen) document.exitFullscreen();
+    }
+
+    window.onload = () => { initGrid(); updateTimerDisplay(); };
+</script>
+</body>
+</html>
