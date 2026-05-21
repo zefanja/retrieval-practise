@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sachaufgaben – Volumen & Oberfläche von Quadern</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #FBF7EE;
+    --bg-soft:   #F3ECDC;
+    --ink:       #14172B;
+    --ink-soft:  #3C3F58;
+    --line:      #14172B;
+    --paper:     #FFFFFF;
+    --blue:      #1E3A8A;
+    --blue-soft: #DCE5FA;
+    --rust:      #C53A19;
+    --rust-soft: #FBE4DD;
+    --gold:      #B8860B;
+    --gold-soft: #FBEDC8;
+    --green:     #15633F;
+    --green-soft:#D8EBD9;
+    --shadow:    0 2px 0 var(--line), 0 8px 24px rgba(20,23,43,.08);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(30,58,138,.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(197,58,25,.05), transparent 45%);
+  }
+
+  /* === HEADER === */
+  .topbar {
+    border-bottom: 2px solid var(--line);
+    background: var(--paper);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 36px; height: 36px;
+    border: 2px solid var(--ink);
+    background: var(--gold-soft);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    transform: rotate(-3deg);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .brand-text small {
+    display:block;
+    font-family:"Manrope", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 10px 18px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform .08s ease, box-shadow .08s ease;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  .back-btn:hover { background: var(--gold-soft); }
+  .back-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+  body.view-detail .brand-text small.overview-only { display:none; }
+
+  /* === HERO / INTRO === */
+  .hero {
+    padding: 56px 32px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 900;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 0 0 18px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--rust);
+  }
+  .hero p.lead {
+    max-width: 720px;
+    font-size: 19px;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+  }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 14px;
+  }
+  .meta-pill {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .meta-pill.blue { background: var(--blue-soft); }
+  .meta-pill.rust { background: var(--rust-soft); }
+  .meta-pill.gold { background: var(--gold-soft); }
+
+  /* === GRID === */
+  .grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 32px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 22px 22px 24px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .12s ease, box-shadow .12s ease;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+  }
+  .card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .card:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .card .nr {
+    font-family: "Fraunces", serif;
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 0.9;
+    letter-spacing: -.04em;
+    color: var(--blue);
+  }
+  .card .titel {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.15;
+    margin: 8px 0 14px;
+    letter-spacing: -.015em;
+  }
+  .card .vorschau {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    flex: 1;
+  }
+  .schwierigkeit {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-soft);
+  }
+  .schwierigkeit .dots {
+    display: flex;
+    gap: 4px;
+  }
+  .schwierigkeit .dot {
+    width: 10px; height: 10px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+  .schwierigkeit .dot.on { background: var(--rust); }
+
+  .card .tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    padding: 4px 10px;
+    border: 1.5px solid var(--ink);
+    background: var(--gold-soft);
+  }
+  .card .tag.zusammen { background: var(--rust-soft); }
+
+  /* === DETAIL === */
+  .detail {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 32px 100px;
+  }
+  body.view-detail .detail { display: block; }
+  body.view-detail .hero,
+  body.view-detail .grid { display: none; }
+
+  .detail .kopf {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  .detail .kopf .nr-big {
+    font-family: "Fraunces", serif;
+    font-weight: 900;
+    font-size: clamp(80px, 12vw, 140px);
+    line-height: 0.85;
+    letter-spacing: -.04em;
+    color: var(--blue);
+  }
+  .detail .kopf .titel-block {
+    flex: 1;
+    min-width: 250px;
+  }
+  .detail .kopf h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.05;
+    margin: 0 0 12px;
+    letter-spacing: -.015em;
+  }
+  .detail .kopf .meta {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .aufgabe-text {
+    font-size: 19px;
+    line-height: 1.65;
+  }
+  .aufgabe-text p { margin: 0 0 14px; }
+  .aufgabe-text ul {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0;
+  }
+  .aufgabe-text ul li {
+    padding: 6px 0 6px 26px;
+    position: relative;
+  }
+  .aufgabe-text ul li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--rust);
+    font-weight: 700;
+  }
+  .aufgabe-text strong {
+    background: linear-gradient(transparent 60%, var(--gold-soft) 60%);
+    padding: 0 2px;
+    font-weight: 700;
+  }
+  .aufgabe-text .frage {
+    font-weight: 700;
+    border-left: 4px solid var(--rust);
+    padding: 6px 0 6px 16px;
+    margin-top: 18px;
+    background: linear-gradient(to right, var(--rust-soft), transparent 60%);
+  }
+
+  .skizze {
+    margin: 28px 0;
+    padding: 24px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    overflow: hidden;
+  }
+  .skizze .skizze-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .skizze svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 380px;
+  }
+
+  /* === LÖSUNG === */
+  .loesung-block {
+    margin-top: 36px;
+  }
+  .loesung-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 22px;
+    background: var(--green);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .loesung-toggle:hover { background: #0E4F31; }
+  .loesung-toggle:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+  .loesung-toggle .icon {
+    width: 22px; height: 22px;
+    border: 2px solid var(--paper);
+    display: grid; place-items: center;
+    font-size: 14px;
+    transition: transform .2s ease;
+  }
+  .loesung-block.open .loesung-toggle .icon { transform: rotate(45deg); }
+
+  .loesung-inhalt {
+    display: none;
+    margin-top: 20px;
+    padding: 28px;
+    background: var(--green-soft);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .loesung-block.open .loesung-inhalt { display: block; }
+  .loesung-inhalt h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0 0 10px;
+    letter-spacing: -.01em;
+  }
+  .loesung-inhalt h3:first-child { margin-top: 0; }
+  .loesung-inhalt h3:not(:first-child) { margin-top: 22px; }
+  .loesung-inhalt .schritt {
+    margin: 12px 0;
+    padding: 12px 16px;
+    background: var(--paper);
+    border-left: 4px solid var(--green);
+  }
+  .loesung-inhalt .formel {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 20px;
+    background: var(--gold-soft);
+    padding: 8px 14px;
+    display: inline-block;
+    border: 1.5px solid var(--ink);
+    margin: 4px 0;
+  }
+  .loesung-inhalt .ergebnis {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--blue);
+    padding: 14px 18px;
+    background: var(--paper);
+    border: 2px solid var(--blue);
+    margin: 16px 0;
+    display: inline-block;
+  }
+  .loesung-inhalt p { margin: 8px 0; }
+  .loesung-inhalt ul { margin: 8px 0; padding-left: 22px; }
+  .loesung-inhalt li { margin: 4px 0; }
+
+  /* === SVG styling helpers === */
+  .sk-stroke { stroke: var(--ink); stroke-width: 2; fill: none; }
+  .sk-dashed { stroke: var(--ink); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+  .sk-fill   { fill: var(--blue-soft); stroke: var(--ink); stroke-width: 2; }
+  .sk-fill-rust { fill: var(--rust-soft); stroke: var(--ink); stroke-width: 2; }
+  .sk-fill-gold { fill: var(--gold-soft); stroke: var(--ink); stroke-width: 2; }
+  .sk-water  { fill: rgba(30,58,138,.18); stroke: none; }
+  .sk-label  { font-family: "Manrope", sans-serif; font-size: 14px; font-weight: 700; fill: var(--ink); }
+  .sk-label-s{ font-family: "Manrope", sans-serif; font-size: 12px; font-weight: 600; fill: var(--ink-soft); }
+  .sk-arrow  { stroke: var(--rust); stroke-width: 1.5; fill: none; marker-start: url(#arr); marker-end: url(#arr); }
+
+  /* === Footer === */
+  .fuss {
+    border-top: 2px solid var(--ink);
+    padding: 22px 32px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--paper);
+  }
+
+  /* === Mobile === */
+  @media (max-width: 640px) {
+    .topbar { padding: 14px 18px; }
+    .hero { padding: 36px 18px 18px; }
+    .grid { padding: 12px 18px 60px; }
+    .detail { padding: 24px 18px 80px; }
+    .card .nr { font-size: 48px; }
+    .card .titel { font-size: 20px; }
+    .brand-text small { display: none; }
+  }
+
+  @media print {
+    .topbar, .back-btn, .loesung-toggle { display: none !important; }
+    body.view-detail .detail { display: block; }
+    .loesung-inhalt { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">𝑽</div>
+    <div class="brand-text">
+      <div>Sachaufgaben Quader</div>
+      <small class="overview-only">Mathematik · 5. Klasse · Gymnasium</small>
+    </div>
+  </div>
+  <button class="back-btn" id="backBtn" aria-label="Zurück zur Übersicht">
+    <span>← Zurück</span>
+  </button>
+</header>
+
+<!-- ÜBERSICHT -->
+<section class="hero" id="hero">
+  <h1>Zehn Sachaufgaben.<br><em>Quader im Alltag.</em></h1>
+  <p class="lead">Von einem einfachen Aquarium bis zum Schwimmbecken mit zwei Tiefen — zehn realitätsnahe Aufgaben rund um <strong>Volumen</strong> und <strong>Oberfläche</strong>. Die Schwierigkeit steigt von Aufgabe&nbsp;1 bis Aufgabe&nbsp;10 stetig an.</p>
+  <div class="meta-row">
+    <span class="meta-pill blue">10 Aufgaben</span>
+    <span class="meta-pill rust">Mit Skizzen</span>
+    <span class="meta-pill gold">Erwartungshorizont</span>
+  </div>
+</section>
+
+<main class="grid" id="grid"></main>
+
+<!-- DETAIL -->
+<section class="detail" id="detail" aria-live="polite"></section>
+
+<footer class="fuss">
+  Sachaufgaben Quader · Klasse 5 · Gymnasium · Whiteboard-optimiert
+</footer>
+
+<script>
+/* ============================================================
+   AUFGABEN-DATEN
+   ============================================================ */
+
+const aufgaben = [
+  /* ----- 1 ----- */
+  {
+    nr: 1,
+    titel: "Das Aquarium",
+    schwierigkeit: 1,
+    tag: "Volumen",
+    vorschau: "Wie viele Liter Wasser fasst ein quaderförmiges Aquarium?",
+    text: `
+      <p>Familie Berger kauft sich ein neues quaderförmiges Aquarium für das Wohnzimmer. Es hat die folgenden Innenmaße:</p>
+      <ul>
+        <li>Länge: <strong>80&nbsp;cm</strong></li>
+        <li>Breite: <strong>35&nbsp;cm</strong></li>
+        <li>Höhe: <strong>40&nbsp;cm</strong></li>
+      </ul>
+      <p>Vor dem Befüllen müssen die Bergers wissen, wie viel Wasser hineinpasst.</p>
+      <p class="frage">Wie viele Liter Wasser fasst das Aquarium insgesamt?</p>
+    `,
+    skizze: quaderSchraegSVG({l: 80, b: 35, h: 40, einheit: "cm"}),
+    loesung: `
+      <h3>Lösungsweg</h3>
+      <div class="schritt">
+        <p><strong>Formel anwenden:</strong></p>
+        <div class="formel">V = a · b · c</div>
+      </div>
+      <div class="schritt">
+        <p><strong>Werte einsetzen:</strong></p>
+        <div class="formel">V = 80 cm · 35 cm · 40 cm = 112&nbsp;000 cm³</div>
+      </div>
+      <div class="schritt">
+        <p><strong>Umrechnen in Liter</strong> (1 L = 1 dm³ = 1000 cm³):</p>
+        <div class="formel">112 000 cm³ ÷ 1000 = 112 dm³</div>
+      </div>
+      <div class="ergebnis">Antwort: Das Aquarium fasst 112 Liter Wasser.</div>
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Korrekte Formel für das Quadervolumen.</li>
+        <li>Multiplikation richtig ausgeführt.</li>
+        <li>Einheitenumrechnung von cm³ in Liter (Faktor 1000) wird erkannt.</li>
+        <li>Antwortsatz mit korrekter Einheit (Liter).</li>
+      </ul>
+    `
+  },
+
+  /* ----- 2 ----- */
+  {
+    nr: 2,
+    titel: "Geschenk einpacken",
+    schwierigkeit: 2,
+    tag: "Oberfläche",
+    vorschau: "Wie viel Geschenkpapier wird für einen Schuhkarton benötigt?",
+    text: `
+      <p>Lina möchte ihrem Vater zum Geburtstag einen Schuhkarton einpacken. Der Karton hat die Maße:</p>
+      <ul>
+        <li>Länge: <strong>32&nbsp;cm</strong></li>
+        <li>Breite: <strong>20&nbsp;cm</strong></li>
+        <li>Höhe: <strong>15&nbsp;cm</strong></li>
+      </ul>
+      <p>Damit das Papier sich überlappt und das Geschenk schön umschlossen ist, kalkuliert Lina <strong>zusätzlich 10&nbsp;%</strong> Verschnitt ein.</p>
+      <p class="frage">Wie viel cm² Geschenkpapier muss Lina mindestens kaufen?</p>
+    `,
+    skizze: quaderSchraegSVG({l: 32, b: 20, h: 15, einheit: "cm", style: "rust"}),
+    loesung: `
+      <h3>Lösungsweg</h3>
+      <div class="schritt">
+        <p><strong>Formel für die Oberfläche:</strong></p>
+        <div class="formel">O = 2 · (a·b + a·c + b·c)</div>
+      </div>
+      <div class="schritt">
+        <p><strong>Einzelflächen berechnen:</strong></p>
+        <ul>
+          <li>a · b = 32 · 20 = 640 cm²</li>
+          <li>a · c = 32 · 15 = 480 cm²</li>
+          <li>b · c = 20 · 15 = 300 cm²</li>
+        </ul>
+        <p><strong>Summe:</strong> 640 + 480 + 300 = 1 420 cm²</p>
+        <div class="formel">O = 2 · 1 420 cm² = 2 840 cm²</div>
+      </div>
+      <div class="schritt">
+        <p><strong>10 % Verschnitt addieren:</strong></p>
+        <p>10 % von 2 840 cm² = 284 cm²</p>
+        <div class="formel">2 840 + 284 = 3 124 cm²</div>
+      </div>
+      <div class="ergebnis">Antwort: Lina benötigt mindestens 3 124 cm² Geschenkpapier.</div>
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Drei Flächenpaare korrekt identifiziert.</li>
+        <li>Verdopplung wegen der gegenüberliegenden Seiten beachtet.</li>
+        <li>Prozentrechnung (10 % als ein Zehntel) sicher angewandt.</li>
+        <li>Antwortsatz vorhanden, Einheit cm².</li>
+      </ul>
+    `
+  },
+
+  /* ----- 3 ----- */
+  {
+    nr: 3,
+    titel: "Der neue Sandkasten",
+    schwierigkeit: 3,
+    tag: "Volumen",
+    vorschau: "Wie viele Säcke Sand braucht der Kindergarten?",
+    text: `
+      <p>Im Kindergarten wird ein quaderförmiger Sandkasten gebaut. Er soll bis zum Rand mit Spielsand befüllt werden. Innenmaße des Sandkastens:</p>
+      <ul>
+        <li>Länge: <strong>2,50&nbsp;m</strong></li>
+        <li>Breite: <strong>1,50&nbsp;m</strong></li>
+        <li>Tiefe: <strong>0,40&nbsp;m</strong></li>
+      </ul>
+      <p>Im Baumarkt gibt es Spielsand in Säcken zu je <strong>25&nbsp;Liter</strong>.</p>
+      <p class="frage">a) Wie viele Liter Sand passen in den Sandkasten?<br>
+      b) Wie viele Säcke muss der Kindergarten mindestens kaufen?</p>
+    `,
+    skizze: quaderSchraegSVG({l: 250, b: 150, h: 40, einheit: "cm", anzeige: "m", werte:[2.5, 1.5, 0.4]}),
+    loesung: `
+      <h3>Teil a) Volumen berechnen</h3>
+      <div class="schritt">
+        <div class="formel">V = 2,5 m · 1,5 m · 0,4 m = 1,5 m³</div>
+      </div>
+      <div class="schritt">
+        <p><strong>Umrechnen in Liter</strong> (1 m³ = 1 000 dm³ = 1 000 L):</p>
+        <div class="formel">1,5 m³ = 1 500 L</div>
+      </div>
+      <div class="ergebnis">In den Sandkasten passen 1 500 Liter Sand.</div>
+      <h3>Teil b) Anzahl der Säcke</h3>
+      <div class="schritt">
+        <div class="formel">1 500 L ÷ 25 L = 60</div>
+      </div>
+      <div class="ergebnis">Der Kindergarten muss 60 Säcke Sand kaufen.</div>
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Multiplikation mit Dezimalzahlen sicher ausgeführt.</li>
+        <li>Umrechnung von m³ in Liter erkannt.</li>
+        <li>Erkennen, dass aufgerundet werden muss, falls die Division nicht aufgeht (hier geht sie auf).</li>
+        <li>Beide Antwortsätze vorhanden.</li>
+      </ul>
+    `
+  },
+
+  /* ----- 4 ----- */
+  {
+    nr: 4,
+    titel: "Das Kinderzimmer streichen",
+    schwierigkeit: 4,
+    tag: "Teiloberfläche",
+    vorschau: "Wie viel Farbe braucht Tim für sein Zimmer?",
+    text: `
+      <p>Tim möchte sein Zimmer streichen — alle <strong>vier Wände</strong> und die <strong>Decke</strong>, jedoch <strong>nicht den Boden</strong>. Das Zimmer ist quaderförmig:</p>
+      <ul>
+        <li>Länge: <strong>5,00&nbsp;m</strong></li>
+        <li>Breite: <strong>4,00&nbsp;m</strong></li>
+        <li>Höhe: <strong>2,50&nbsp;m</strong></li>
+      </ul>
+      <p>Im Zimmer befinden sich Flächen, die nicht gestrichen werden:</p>
+      <ul>
+        <li>1 Tür: <strong>0,90&nbsp;m × 2,00&nbsp;m</strong></li>
+        <li>2 Fenster: je <strong>1,50&nbsp;m × 1,20&nbsp;m</strong></li>
+      </ul>
+      <p>Auf der Farbdose steht: <strong>1 Liter reicht für 8&nbsp;m²</strong>.</p>
+      <p class="frage">Wie viele Liter Farbe muss Tim mindestens kaufen?</p>
+    `,
+    skizze: zimmerSVG(),
+    loesung: `
+      <h3>Schritt 1 – Wandflächen</h3>
+      <div class="schritt">
+        <p>Es gibt zwei lange und zwei kurze Wände:</p>
+        <div class="formel">2·(5 m · 2,5 m) + 2·(4 m · 2,5 m) = 25 m² + 20 m² = 45 m²</div>
+      </div>
+      <h3>Schritt 2 – Deckenfläche</h3>
+      <div class="schritt">
+        <div class="formel">5 m · 4 m = 20 m²</div>
+      </div>
+      <h3>Schritt 3 – Gesamt vor Abzug</h3>
+      <div class="schritt">
+        <div class="formel">45 m² + 20 m² = 65 m²</div>
+      </div>
+      <h3>Schritt 4 – Abzug Tür und Fenster</h3>
+      <div class="schritt">
+        <ul>
+          <li>Tür: 0,9 m · 2 m = 1,8 m²</li>
+          <li>Fenster: 2 · (1,5 m · 1,2 m) = 2 · 1,8 m² = 3,6 m²</li>
+        </ul>
+        <p>Summe Abzug: 1,8 + 3,6 = <strong>5,4 m²</strong></p>
+      </div>
+      <h3>Schritt 5 – Streichfläche</h3>
+      <div class="schritt">
+        <div class="formel">65 m² − 5,4 m² = 59,6 m²</div>
+      </div>
+      <h3>Schritt 6 – Farbmenge</h3>
+      <div class="schritt">
+        <div class="formel">59,6 m² ÷ 8 m²/L = 7,45 L</div>
+        <p>Da nur ganze Liter gekauft werden können, muss aufgerundet werden.</p>
+      </div>
+      <div class="ergebnis">Antwort: Tim muss mindestens 8 Liter Farbe kaufen.</div>
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Wände korrekt paarweise berechnet.</li>
+        <li>Decke beachtet, Boden ausgespart.</li>
+        <li>Tür- und Fensterflächen subtrahiert.</li>
+        <li>Aufrunden auf ganze Liter mit Begründung.</li>
+      </ul>
+    `
+  },
+
+  /* ----- 5 ----- */
+  {
+    nr: 5,
+    titel: "Den Pool befüllen",
+    schwierigkeit: 5,
+    tag: "Volumen",
+    vorschau: "Wie viele Stunden dauert das Befüllen mit einem Gartenschlauch?",
+    text: `
+      <p>Familie Demir hat sich für den Sommer einen neuen quaderförmigen Pool gekauft. Innenmaße:</p>
+      <ul>
+        <li>Länge: <strong>4,00&nbsp;m</strong></li>
+        <li>Breite: <strong>2,50&nbsp;m</strong></li>
+        <li>Höhe: <strong>1,20&nbsp;m</strong></li>
+      </ul>
+      <p>Der Pool wird <strong>bis 10&nbsp;cm unter dem Rand</strong> mit Wasser befüllt. Aus dem Gartenschlauch fließen <strong>25&nbsp;Liter pro Minute</strong>.</p>
+      <p class="frage">a) Wie viele Liter Wasser werden benötigt?<br>
+      b) Wie lange dauert das Befüllen (in Stunden und Minuten)?</p>
+    `,
+    skizze: poolSVG(),
+    loesung: `
+      <h3>Teil a) Wassermenge</h3>
+      <div class="schritt">
+        <p>Die Wasserhöhe ist nicht 1,20 m, sondern <strong>1,20 m − 0,10 m = 1,10 m</strong>.</p>
+        <div class="formel">V = 4 m · 2,5 m · 1,1 m = 11 m³</div>
+        <p>Umrechnen: 11 m³ = 11 000 L</p>
+      </div>
+      <div class="ergebnis">Es werden 11 000 Liter Wasser benötigt.</div>
+
+      <h3>Teil b) Dauer</h3>
+      <div class="schritt">
+        <div class="formel">11 000 L ÷ 25 L/min = 440 min</div>
+        <p>Umrechnen in Stunden:</p>
+        <div class="formel">440 min ÷ 60 = 7 Rest 20  →  7 h 20 min</div>
+      </div>
+      <div class="ergebnis">Das Befüllen dauert 7 Stunden und 20 Minuten.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Wasserhöhe korrekt um 10 cm reduziert (Lese-Aufmerksamkeit).</li>
+        <li>Umrechnung m³ → Liter.</li>
+        <li>Sachgerechte Umrechnung Minuten → Stunden mit Rest.</li>
+        <li>Antwortsätze mit passenden Einheiten.</li>
+      </ul>
+    `
+  },
+
+  /* ----- 6 ----- */
+  {
+    nr: 6,
+    titel: "Lagerhalle für Paletten",
+    schwierigkeit: 6,
+    tag: "Volumen",
+    vorschau: "Wie viele Paletten passen in die Halle?",
+    text: `
+      <p>In einer Speditionsfirma soll eine neue Lagerhalle in Betrieb genommen werden. Die Halle hat <strong>innen</strong> die Maße:</p>
+      <ul>
+        <li>Länge: <strong>24&nbsp;m</strong></li>
+        <li>Breite: <strong>12&nbsp;m</strong></li>
+        <li>Höhe: <strong>6&nbsp;m</strong></li>
+      </ul>
+      <p>Die Paletten sind ebenfalls quaderförmig und werden alle gleich ausgerichtet aufgestellt:</p>
+      <ul>
+        <li>Länge: <strong>1,20&nbsp;m</strong></li>
+        <li>Breite: <strong>0,80&nbsp;m</strong></li>
+        <li>Höhe: <strong>1,50&nbsp;m</strong></li>
+      </ul>
+      <p>Die Paletten dürfen <strong>übereinander gestapelt</strong> werden — allerdings nur so, dass <strong>oberhalb der obersten Palette 50&nbsp;cm Luft</strong> für den Gabelstapler bleiben.</p>
+      <p class="frage">Wie viele Paletten passen maximal in die Lagerhalle?</p>
+    `,
+    skizze: lagerSVG(),
+    loesung: `
+      <h3>Schritt 1 – Anzahl pro Stockwerk</h3>
+      <div class="schritt">
+        <p>Wir teilen die Hallenmaße durch die Palettenmaße:</p>
+        <ul>
+          <li>Länge: 24 m ÷ 1,20 m = 20 Paletten in einer Reihe</li>
+          <li>Breite: 12 m ÷ 0,80 m = 15 Reihen</li>
+        </ul>
+        <div class="formel">20 · 15 = 300 Paletten pro Stockwerk</div>
+      </div>
+
+      <h3>Schritt 2 – Stockwerke (Höhe)</h3>
+      <div class="schritt">
+        <p>Nutzbare Höhe: 6 m − 0,5 m = 5,5 m</p>
+        <div class="formel">5,5 m ÷ 1,5 m = 3,66…  →  3 Stockwerke</div>
+        <p>Es wird abgerundet, weil ein angefangenes Stockwerk nicht zählt.</p>
+      </div>
+
+      <h3>Schritt 3 – Gesamtzahl</h3>
+      <div class="schritt">
+        <div class="formel">300 · 3 = 900 Paletten</div>
+      </div>
+      <div class="ergebnis">Antwort: In die Lagerhalle passen maximal 900 Paletten.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Erkennen, dass nicht das reine Volumen sondern die Anordnung in jeder Dimension entscheidet.</li>
+        <li>Korrektes Abziehen der 50 cm Freiraum.</li>
+        <li>Abrunden bei nicht aufgehender Division (3,66 → 3).</li>
+        <li>Antwortsatz mit Einheit "Paletten".</li>
+      </ul>
+      <p><em>Hinweis: Wer einfach 24·12·6 = 1728 m³ durch 1,2·0,8·1,5 = 1,44 m³ teilt, bekommt 1200 — das ist falsch, weil dabei nicht beachtet wird, dass die Maße nicht restlos aufgehen und Freiraum gebraucht wird.</em></p>
+    `
+  },
+
+  /* ----- 7 ----- */
+  {
+    nr: 7,
+    titel: "L-förmiges Hochbeet",
+    schwierigkeit: 7,
+    tag: "Zusammengesetzt",
+    isZusammen: true,
+    vorschau: "Volumen eines L-förmigen Hochbeets und Säcke Erde.",
+    text: `
+      <p>Frau Karim baut sich ein <strong>L-förmiges Hochbeet</strong> für den Garten. Es besteht aus zwei aneinander gesetzten quaderförmigen Teilen mit derselben Höhe. Die Maße von oben gesehen:</p>
+      <ul>
+        <li>Langer Schenkel: <strong>2,40&nbsp;m × 0,80&nbsp;m</strong></li>
+        <li>Kurzer Schenkel: <strong>1,20&nbsp;m × 0,80&nbsp;m</strong> (an einer Stirnseite des langen Schenkels angebaut)</li>
+        <li>Höhe (für beide Teile): <strong>0,75&nbsp;m</strong></li>
+      </ul>
+      <p>Das Hochbeet soll <strong>vollständig mit Pflanzerde</strong> befüllt werden. Erde gibt es im Baumarkt in Säcken zu je <strong>40&nbsp;Liter</strong>.</p>
+      <p class="frage">a) Wie viel Liter Erde passen in das Hochbeet?<br>
+      b) Wie viele Säcke Erde muss Frau Karim mindestens kaufen?</p>
+    `,
+    skizze: lFormSVG(),
+    loesung: `
+      <h3>Teil a) Volumen</h3>
+      <div class="schritt">
+        <p><strong>Möglichkeit 1: Zerlegen in zwei Quader</strong></p>
+        <ul>
+          <li>V₁ = 2,40 m · 0,80 m · 0,75 m = 1,44 m³</li>
+          <li>V₂ = 1,20 m · 0,80 m · 0,75 m = 0,72 m³</li>
+        </ul>
+        <div class="formel">V = V₁ + V₂ = 1,44 + 0,72 = 2,16 m³</div>
+      </div>
+      <div class="schritt">
+        <p>Umrechnen in Liter:</p>
+        <div class="formel">2,16 m³ = 2 160 L</div>
+      </div>
+      <div class="ergebnis">In das Hochbeet passen 2 160 Liter Erde.</div>
+
+      <h3>Teil b) Anzahl Säcke</h3>
+      <div class="schritt">
+        <div class="formel">2 160 L ÷ 40 L = 54</div>
+      </div>
+      <div class="ergebnis">Frau Karim muss 54 Säcke Erde kaufen.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Erkennen, dass die L-Form sinnvoll in zwei Quader zerlegt werden kann.</li>
+        <li>Bei der Zerlegung wird der gemeinsame Bereich nicht doppelt gezählt (saubere Zerlegung).</li>
+        <li>Sichere Multiplikation mit Dezimalzahlen.</li>
+        <li>Umrechnung m³ → Liter.</li>
+      </ul>
+      <p><em>Tipp: Eine Alternative ist „Großer Quader minus fehlendes Eckstück". Beide Wege müssen zum gleichen Ergebnis führen.</em></p>
+    `
+  },
+
+  /* ----- 8 ----- */
+  {
+    nr: 8,
+    titel: "Betontreppe vor dem Haus",
+    schwierigkeit: 8,
+    tag: "Zusammengesetzt",
+    isZusammen: true,
+    vorschau: "Wie viel Beton und welche Kosten entstehen?",
+    text: `
+      <p>Vor einem Reihenhaus wird eine <strong>dreistufige Treppe</strong> aus massivem Beton gegossen. Jede Stufe hat dieselbe Form:</p>
+      <ul>
+        <li>Stufenhöhe: <strong>18&nbsp;cm</strong></li>
+        <li>Stufentiefe: <strong>30&nbsp;cm</strong></li>
+        <li>Stufenbreite: <strong>100&nbsp;cm</strong></li>
+      </ul>
+      <p>Die Treppe steht <strong>frei</strong> (nicht an einer Wand). Beton kostet beim Lieferanten <strong>120&nbsp;€ pro m³</strong>.</p>
+      <p class="frage">a) Berechne das Volumen der Treppe.<br>
+      b) Wie viel Beton (in m³) muss bestellt werden?<br>
+      c) Wie viel kostet der Beton?</p>
+    `,
+    skizze: treppeSVG(),
+    loesung: `
+      <h3>Teil a) Volumen durch Zerlegung</h3>
+      <div class="schritt">
+        <p>Die Treppe wird in <strong>drei waagerechte Quader</strong> zerlegt (von unten nach oben). Jeder Quader ist 18&nbsp;cm hoch und 100&nbsp;cm breit. Die <strong>Tiefe</strong> der Quader nimmt nach oben hin um jeweils eine Stufentiefe ab:</p>
+        <ul>
+          <li>Unterster Quader: 100 cm · 90 cm · 18 cm = 162 000 cm³</li>
+          <li>Mittlerer Quader: 100 cm · 60 cm · 18 cm = 108 000 cm³</li>
+          <li>Oberer Quader: 100 cm · 30 cm · 18 cm = 54 000 cm³</li>
+        </ul>
+        <div class="formel">V = 162 000 + 108 000 + 54 000 = 324 000 cm³</div>
+      </div>
+      <h3>Teil b) Umrechnung in m³</h3>
+      <div class="schritt">
+        <p>1 m³ = 1 000 000 cm³</p>
+        <div class="formel">324 000 cm³ = 0,324 m³</div>
+        <p>Beton wird meist in vollen Hundertstel-m³ bestellt → <strong>0,33 m³</strong></p>
+      </div>
+      <div class="ergebnis">Es müssen 0,324 m³ Beton (gerundet 0,33 m³) bestellt werden.</div>
+
+      <h3>Teil c) Kosten</h3>
+      <div class="schritt">
+        <div class="formel">0,324 m³ · 120 €/m³ = 38,88 €</div>
+        <p>(Bei 0,33 m³ wären es 39,60 €.)</p>
+      </div>
+      <div class="ergebnis">Der Beton kostet 38,88 €.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Sinnvolle Zerlegung in waagerechte Quader-Schichten (alternativ: drei senkrechte Quader).</li>
+        <li>Tiefe der unteren Stufe korrekt als 3 · 30 cm = 90 cm erkannt.</li>
+        <li>Sichere Umrechnung cm³ → m³ (Faktor 1 000 000).</li>
+        <li>Vollständige Multiplikation in Teil c).</li>
+      </ul>
+    `
+  },
+
+  /* ----- 9 ----- */
+  {
+    nr: 9,
+    titel: "Holzkiste mit dicken Wänden",
+    schwierigkeit: 9,
+    tag: "Hohlkörper",
+    isZusammen: true,
+    vorschau: "Wie viel Holz steckt in einer offenen Kiste — und wie schwer ist sie?",
+    text: `
+      <p>Ein Tischler baut eine <strong>oben offene Holzkiste</strong> für Werkzeug. Die <strong>Außenmaße</strong> sind:</p>
+      <ul>
+        <li>Länge: <strong>60&nbsp;cm</strong></li>
+        <li>Breite: <strong>40&nbsp;cm</strong></li>
+        <li>Höhe: <strong>30&nbsp;cm</strong></li>
+      </ul>
+      <p>Alle vier Wände sowie der Boden bestehen aus <strong>5&nbsp;cm dicken</strong> Holzbrettern. Die Kiste hat <strong>keinen Deckel</strong>.</p>
+      <p>Das verwendete Eichenholz hat eine Dichte von <strong>0,7&nbsp;g/cm³</strong>.</p>
+      <p class="frage">a) Welches Volumen hat der Innenraum?<br>
+      b) Welches Volumen hat das verbaute Holz?<br>
+      c) Wie schwer ist die leere Kiste?</p>
+    `,
+    skizze: holzkisteSVG(),
+    loesung: `
+      <h3>Teil a) Innenraum</h3>
+      <div class="schritt">
+        <p>Die Wandstärke wird auf <strong>beiden Seiten</strong> abgezogen:</p>
+        <ul>
+          <li>Innen-Länge: 60 − 2·5 = 50 cm</li>
+          <li>Innen-Breite: 40 − 2·5 = 30 cm</li>
+          <li>Innen-Höhe: 30 − 5 = 25 cm <em>(nur unten ein Boden, oben offen!)</em></li>
+        </ul>
+        <div class="formel">V_innen = 50 · 30 · 25 = 37 500 cm³</div>
+      </div>
+      <div class="ergebnis">Der Innenraum hat ein Volumen von 37 500 cm³ = 37,5 L.</div>
+
+      <h3>Teil b) Holzvolumen</h3>
+      <div class="schritt">
+        <p>Außenvolumen:</p>
+        <div class="formel">V_außen = 60 · 40 · 30 = 72 000 cm³</div>
+        <p>Holzvolumen = Außenvolumen − Innenraum:</p>
+        <div class="formel">V_Holz = 72 000 − 37 500 = 34 500 cm³</div>
+      </div>
+      <div class="ergebnis">Es wurden 34 500 cm³ Holz verbaut.</div>
+
+      <h3>Teil c) Masse</h3>
+      <div class="schritt">
+        <div class="formel">m = 34 500 cm³ · 0,7 g/cm³ = 24 150 g</div>
+        <div class="formel">24 150 g = 24,15 kg</div>
+      </div>
+      <div class="ergebnis">Die leere Kiste wiegt ca. 24,15 kg.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Wandstärke korrekt zweimal abgezogen (links + rechts, vorn + hinten).</li>
+        <li>Erkennen, dass oben kein Deckel ist → Innen-Höhe nur einmal um 5 cm reduzieren.</li>
+        <li>Holzvolumen als Differenz von Außen- und Innenvolumen.</li>
+        <li>Anwendung der Dichteformel m = V · ρ; korrekte Umrechnung g → kg.</li>
+      </ul>
+    `
+  },
+
+  /* ----- 10 ----- */
+  {
+    nr: 10,
+    titel: "Schwimmbecken mit zwei Tiefen",
+    schwierigkeit: 10,
+    tag: "Zusammengesetzt",
+    isZusammen: true,
+    vorschau: "Volumen, Befülldauer und Bodenfläche eines L-förmigen Pools.",
+    text: `
+      <p>Ein Schwimmbad besitzt ein rechteckiges Becken, das aus einem <strong>Flachbereich</strong> für Kinder und einem <strong>Tiefbereich</strong> zum Schwimmen besteht. Von der Seite betrachtet hat das Becken eine <strong>L-förmige Tiefenstruktur</strong>:</p>
+      <ul>
+        <li>Beckenbreite (gleich überall): <strong>5,00&nbsp;m</strong></li>
+        <li>Flachbereich: Länge <strong>6,00&nbsp;m</strong>, Tiefe <strong>1,20&nbsp;m</strong></li>
+        <li>Tiefbereich: Länge <strong>4,00&nbsp;m</strong>, Tiefe <strong>2,00&nbsp;m</strong></li>
+      </ul>
+      <p>Das Becken soll <strong>bis zum Rand</strong> mit Wasser befüllt werden. Eine Pumpe schafft <strong>250&nbsp;Liter pro Minute</strong>.</p>
+      <p class="frage">a) Wie viele Liter Wasser passen in das Becken?<br>
+      b) Wie lange dauert das Befüllen mit <strong>einer</strong> Pumpe (in vollen Stunden und Minuten)?<br>
+      c) Wie viele Pumpen braucht man, damit das Becken in höchstens <strong>3 Stunden</strong> voll ist?<br>
+      d) Wie groß ist die Bodenfläche, die mit Folie ausgekleidet werden muss (zwei Bodenstücke und die senkrechte Stufe dazwischen, nicht die Seitenwände)?</p>
+    `,
+    skizze: schwimmbeckenSVG(),
+    loesung: `
+      <h3>Teil a) Wassermenge</h3>
+      <div class="schritt">
+        <p>Das Becken wird in zwei Quader zerlegt:</p>
+        <ul>
+          <li>Flacher Teil: 6 m · 5 m · 1,2 m = 36 m³</li>
+          <li>Tiefer Teil: 4 m · 5 m · 2 m = 40 m³</li>
+        </ul>
+        <div class="formel">V = 36 + 40 = 76 m³  =  76 000 L</div>
+      </div>
+      <div class="ergebnis">In das Becken passen 76 000 Liter Wasser.</div>
+
+      <h3>Teil b) Dauer mit einer Pumpe</h3>
+      <div class="schritt">
+        <div class="formel">76 000 L ÷ 250 L/min = 304 min</div>
+        <div class="formel">304 min ÷ 60 = 5 Rest 4  →  5 h 4 min</div>
+      </div>
+      <div class="ergebnis">Mit einer Pumpe dauert es 5 Stunden und 4 Minuten.</div>
+
+      <h3>Teil c) Mehrere Pumpen</h3>
+      <div class="schritt">
+        <p>3 Stunden = 180 min. Eine Pumpe schafft in 180 min:</p>
+        <div class="formel">180 · 250 = 45 000 L</div>
+        <p>Nötige Pumpenzahl:</p>
+        <div class="formel">76 000 ÷ 45 000 = 1,68…  →  aufrunden auf 2</div>
+      </div>
+      <div class="ergebnis">Es werden 2 Pumpen benötigt.</div>
+
+      <h3>Teil d) Folienfläche (Boden + Stufe)</h3>
+      <div class="schritt">
+        <p>Die Folie besteht aus drei rechteckigen Teilen:</p>
+        <ul>
+          <li>Boden flach: 6 m · 5 m = 30 m²</li>
+          <li>Boden tief: 4 m · 5 m = 20 m²</li>
+          <li>Stufe (senkrecht zwischen Flach und Tief): (2 − 1,2) m · 5 m = 0,8 · 5 = 4 m²</li>
+        </ul>
+        <div class="formel">A = 30 + 20 + 4 = 54 m²</div>
+      </div>
+      <div class="ergebnis">Es werden 54 m² Folie benötigt.</div>
+
+      <h3>Hinweise zur Bewertung</h3>
+      <ul>
+        <li>Sinnvolle Zerlegung in zwei Quader für das Volumen.</li>
+        <li>Saubere Umrechnungen: m³ → L, min → h + min.</li>
+        <li>Beim Mehr-Pumpen-Teil: <em>aufrunden</em> (sonst wäre das Becken nicht ganz voll).</li>
+        <li>Beim Folien-Teil: die senkrechte „Stufe" zwischen Flach- und Tiefbereich darf nicht vergessen werden. Höhe der Stufe = Differenz der Tiefen = 0,8 m.</li>
+        <li>Sehr gute Lösungen erkennen, dass die Seitenwände bewusst nicht zur Folie zählen.</li>
+      </ul>
+    `
+  }
+];
+
+/* ============================================================
+   SVG-SKIZZEN
+   ============================================================ */
+
+function quaderSchraegSVG({l, b, h, einheit="cm", anzeige=null, werte=null, style="blue"}) {
+  // Asymmetrische, didaktische Skalierung mit Mindestgrößen
+  // damit auch flache Quader (z.B. Sandkasten 250×150×40) gut sichtbar bleiben.
+  const max = Math.max(l, b, h);
+  const baseScale = 170 / max;
+  const minPx = 55;
+
+  let L = Math.max(l * baseScale, minPx);
+  let H = Math.max(h * baseScale, minPx);
+  let B = Math.max(b * baseScale, minPx);
+
+  // Tiefe im Schrägbild stauchen (Konvention)
+  const Bvis = B * 0.7;
+  const dx =  Bvis * Math.cos(Math.PI/6);   // ≈ 0,866 · Bvis
+  const dy = -Bvis * Math.sin(Math.PI/6);   // = -0,5 · Bvis
+
+  const x0 = 130, y0 = 240;
+  const fill = style === "rust" ? "var(--rust-soft)" : style === "gold" ? "var(--gold-soft)" : "var(--blue-soft)";
+
+  // Werte für Label – Punkt zu Komma (deutsch)
+  const fmt = v => String(v).replace('.', ',');
+  const lLabel = fmt(werte ? werte[0] : l);
+  const bLabel = fmt(werte ? werte[1] : b);
+  const hLabel = fmt(werte ? werte[2] : h);
+  const ein = anzeige || einheit;
+
+  // Eckpunkte des Quaders:
+  // VuL = vorne unten links, VuR = vorne unten rechts
+  // VoL = vorne oben links,  VoR = vorne oben rechts
+  // HuL = hinten unten links usw.
+  const VuL = [x0,         y0];
+  const VuR = [x0+L,       y0];
+  const VoL = [x0,         y0-H];
+  const VoR = [x0+L,       y0-H];
+  const HuL = [x0+dx,      y0+dy];
+  const HuR = [x0+L+dx,    y0+dy];
+  const HoL = [x0+dx,      y0-H+dy];
+  const HoR = [x0+L+dx,    y0-H+dy];
+
+  return `
+  <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="qArr_${l}_${b}_${h}" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--rust)"/>
+      </marker>
+    </defs>
+
+    <!-- Hintere (verdeckte) Kanten gestrichelt -->
+    <line x1="${HuL[0]}" y1="${HuL[1]}" x2="${HuR[0]}" y2="${HuR[1]}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="${HuL[0]}" y1="${HuL[1]}" x2="${HoL[0]}" y2="${HoL[1]}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="${HuL[0]}" y1="${HuL[1]}" x2="${VuL[0]}" y2="${VuL[1]}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+
+    <!-- Sichtbare Flächen -->
+    <polygon points="${VuL[0]},${VuL[1]} ${VuR[0]},${VuR[1]} ${VoR[0]},${VoR[1]} ${VoL[0]},${VoL[1]}"
+      fill="${fill}" stroke="var(--ink)" stroke-width="2"/>
+    <polygon points="${VoL[0]},${VoL[1]} ${VoR[0]},${VoR[1]} ${HoR[0]},${HoR[1]} ${HoL[0]},${HoL[1]}"
+      fill="${fill}" stroke="var(--ink)" stroke-width="2" fill-opacity="0.6"/>
+    <polygon points="${VuR[0]},${VuR[1]} ${HuR[0]},${HuR[1]} ${HoR[0]},${HoR[1]} ${VoR[0]},${VoR[1]}"
+      fill="${fill}" stroke="var(--ink)" stroke-width="2" fill-opacity="0.4"/>
+
+    <!-- ===== MAßLINIEN ===== -->
+    <!-- a (Länge): horizontal unter dem Quader, mit Hilfsstrichen -->
+    <line x1="${VuL[0]}" y1="${VuL[1]}" x2="${VuL[0]}" y2="${VuL[1]+34}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${VuR[0]}" y1="${VuR[1]}" x2="${VuR[0]}" y2="${VuR[1]+34}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${VuL[0]}" y1="${VuL[1]+26}" x2="${VuR[0]}" y2="${VuR[1]+26}"
+      stroke="var(--rust)" stroke-width="1.5" marker-start="url(#qArr_${l}_${b}_${h})" marker-end="url(#qArr_${l}_${b}_${h})"/>
+    <text x="${(VuL[0]+VuR[0])/2}" y="${VuL[1]+44}" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">a = ${lLabel} ${ein}</text>
+
+    <!-- c (Höhe): vertikal links, mit Hilfsstrichen -->
+    <line x1="${VuL[0]}" y1="${VuL[1]}" x2="${VuL[0]-36}" y2="${VuL[1]}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${VoL[0]}" y1="${VoL[1]}" x2="${VoL[0]-36}" y2="${VoL[1]}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${VuL[0]-28}" y1="${VuL[1]}" x2="${VoL[0]-28}" y2="${VoL[1]}"
+      stroke="var(--rust)" stroke-width="1.5" marker-start="url(#qArr_${l}_${b}_${h})" marker-end="url(#qArr_${l}_${b}_${h})"/>
+    <text x="${VuL[0]-36}" y="${(VuL[1]+VoL[1])/2+5}" class="sk-label" text-anchor="end" fill="var(--rust)" font-weight="700">c = ${hLabel} ${ein}</text>
+
+    <!-- b (Tiefe/Breite): parallel zur unteren b-Kante, mit Hilfsstrichen -->
+    <line x1="${VuR[0]}" y1="${VuR[1]}" x2="${VuR[0]+24}" y2="${VuR[1]+12}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${HuR[0]}" y1="${HuR[1]}" x2="${HuR[0]+24}" y2="${HuR[1]+12}" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="${VuR[0]+18}" y1="${VuR[1]+10}" x2="${HuR[0]+18}" y2="${HuR[1]+10}"
+      stroke="var(--rust)" stroke-width="1.5" marker-start="url(#qArr_${l}_${b}_${h})" marker-end="url(#qArr_${l}_${b}_${h})"/>
+    <text x="${(VuR[0]+HuR[0])/2+30}" y="${(VuR[1]+HuR[1])/2+18}" class="sk-label" fill="var(--rust)" font-weight="700">b = ${bLabel} ${ein}</text>
+  </svg>`;
+}
+
+function zimmerSVG() {
+  // Aufgerissenes Zimmer mit Tür und Fenstern
+  return `
+  <svg viewBox="0 0 580 340" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="zArr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="var(--rust)"/>
+      </marker>
+    </defs>
+
+    <!-- Bodenfläche (schräg) -->
+    <polygon points="60,260 380,260 460,200 140,200" fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="2"/>
+
+    <!-- Linke Wand -->
+    <polygon points="60,260 60,80 140,20 140,200" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Fenster links -->
+    <rect x="78" y="100" width="40" height="60" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+    <line x1="98" y1="100" x2="98" y2="160" stroke="var(--ink)" stroke-width="1"/>
+    <line x1="78" y1="130" x2="118" y2="130" stroke="var(--ink)" stroke-width="1"/>
+
+    <!-- Hintere Wand -->
+    <polygon points="140,200 460,200 460,20 140,20" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Fenster hinten -->
+    <rect x="200" y="90" width="55" height="65" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+    <line x1="227" y1="90" x2="227" y2="155" stroke="var(--ink)" stroke-width="1"/>
+    <line x1="200" y1="122" x2="255" y2="122" stroke="var(--ink)" stroke-width="1"/>
+    <!-- Tür hinten -->
+    <rect x="350" y="80" width="40" height="120" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+    <circle cx="382" cy="142" r="2.5" fill="var(--ink)"/>
+
+    <!-- Rechte Wand (Schnittkante) -->
+    <polygon points="380,260 460,200 460,20 380,80" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="2" opacity="0.4"/>
+
+    <!-- Maßlinien -->
+    <line x1="60" y1="290" x2="380" y2="290" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#zArr)" marker-end="url(#zArr)"/>
+    <text x="220" y="308" class="sk-label" text-anchor="middle" fill="var(--rust)">Länge 5,00 m</text>
+
+    <line x1="400" y1="265" x2="476" y2="207" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#zArr)" marker-end="url(#zArr)"/>
+    <text x="466" y="245" class="sk-label" fill="var(--rust)">Breite 4,00 m</text>
+
+    <line x1="40" y1="260" x2="40" y2="80" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#zArr)" marker-end="url(#zArr)"/>
+    <text x="32" y="175" class="sk-label" text-anchor="end" fill="var(--rust)">Höhe 2,50 m</text>
+
+    <!-- Beschriftungen -->
+    <text x="225" y="195" class="sk-label-s" text-anchor="middle">Tür 0,9 × 2 m</text>
+    <text x="227" y="170" class="sk-label-s" text-anchor="middle">Fenster</text>
+    <text x="98" y="180" class="sk-label-s" text-anchor="middle">Fenster</text>
+  </svg>`;
+}
+
+function poolSVG() {
+  return `
+  <svg viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="pArr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="var(--rust)"/>
+      </marker>
+    </defs>
+
+    <!-- Pool Schrägbild -->
+    <!-- Boden -->
+    <polygon points="80,240 360,240 440,180 160,180" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Vordere Wand -->
+    <polygon points="80,240 360,240 360,100 80,100" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Rechte Wand -->
+    <polygon points="360,240 440,180 440,40 360,100" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="2" opacity="0.6"/>
+    <!-- Obere Kante hinten -->
+    <line x1="160" y1="40" x2="440" y2="40" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+    <line x1="80" y1="100" x2="160" y2="40" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="360" y1="100" x2="440" y2="40" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="160" y1="40" x2="160" y2="180" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+
+    <!-- Wasser -->
+    <polygon points="80,115 360,115 440,55 160,55" fill="var(--blue)" opacity="0.25" stroke="none"/>
+    <polygon points="80,115 360,115 360,240 80,240" fill="var(--blue)" opacity="0.18" stroke="none"/>
+    <line x1="80" y1="115" x2="360" y2="115" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <text x="220" y="130" class="sk-label-s" text-anchor="middle" fill="var(--blue)">Wasserlinie (10 cm unter Rand)</text>
+
+    <!-- Maße -->
+    <line x1="80" y1="265" x2="360" y2="265" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#pArr)" marker-end="url(#pArr)"/>
+    <text x="220" y="283" class="sk-label" text-anchor="middle" fill="var(--rust)">Länge 4,00 m</text>
+
+    <line x1="380" y1="245" x2="455" y2="190" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#pArr)" marker-end="url(#pArr)"/>
+    <text x="450" y="225" class="sk-label" fill="var(--rust)">Breite 2,50 m</text>
+
+    <line x1="60" y1="240" x2="60" y2="100" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#pArr)" marker-end="url(#pArr)"/>
+    <text x="52" y="175" class="sk-label" text-anchor="end" fill="var(--rust)">Höhe 1,20 m</text>
+  </svg>`;
+}
+
+function lagerSVG() {
+  // L-Halle einfach, mit Paletten-Andeutung
+  return `
+  <svg viewBox="0 0 540 320" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="lArr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="var(--rust)"/>
+      </marker>
+    </defs>
+
+    <!-- Halle Außenform -->
+    <polygon points="60,250 380,250 460,190 140,190" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+    <polygon points="60,250 380,250 380,60 60,60" fill="none" stroke="var(--ink)" stroke-width="2"/>
+    <polygon points="380,250 460,190 460,0 380,60" fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="2" opacity="0.5"/>
+    <polygon points="60,60 380,60 460,0 140,0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+    <line x1="140" y1="0" x2="140" y2="190" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+
+    <!-- Paletten gestapelt -->
+    <g>
+      <!-- 3 Stapel im Vordergrund -->
+      <rect x="90" y="200" width="40" height="46" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="90" y="156" width="40" height="46" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="90" y="112" width="40" height="46" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+
+      <rect x="160" y="200" width="40" height="46" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="160" y="156" width="40" height="46" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+
+      <rect x="230" y="200" width="40" height="46" fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="230" y="156" width="40" height="46" fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="230" y="112" width="40" height="46" fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+
+      <rect x="300" y="200" width="40" height="46" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="300" y="156" width="40" height="46" fill="var(--rust-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+    </g>
+
+    <text x="220" y="290" class="sk-label-s" text-anchor="middle">Paletten dürfen gestapelt werden — 50 cm Freiraum oben</text>
+
+    <!-- Maße -->
+    <line x1="60" y1="275" x2="380" y2="275" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lArr)" marker-end="url(#lArr)"/>
+    <text x="220" y="270" class="sk-label" text-anchor="middle" fill="var(--rust)">Länge 24 m</text>
+
+    <line x1="395" y1="252" x2="475" y2="192" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lArr)" marker-end="url(#lArr)"/>
+    <text x="478" y="225" class="sk-label" fill="var(--rust)">Breite 12 m</text>
+
+    <line x1="475" y1="190" x2="475" y2="0" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lArr)" marker-end="url(#lArr)"/>
+    <text x="485" y="100" class="sk-label" fill="var(--rust)">Höhe 6 m</text>
+  </svg>`;
+}
+
+function lFormSVG() {
+  // L-förmiges Hochbeet von oben gesehen, maßstäblich
+  // Skala: 70 px/m
+  // Langer Schenkel:  2,40 m × 0,80 m (vertikal, links)
+  //   Position: (90, 90) bis (146, 258) = 56 × 168 px
+  // Kurzer Schenkel:  1,20 m × 0,80 m (horizontal, am unteren Ende rechts angesetzt)
+  //   Position: (146, 202) bis (230, 258) = 84 × 56 px
+  //
+  // Geteilte Kante (gestrichelt): (146, 202) bis (146, 258)
+  return `
+  <svg viewBox="-15 0 735 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="lfArr" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--rust)"/>
+      </marker>
+      <marker id="lfArrB" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--blue)"/>
+      </marker>
+    </defs>
+
+    <text x="20" y="24" class="sk-label" font-weight="700">Sicht von oben (Grundriss, maßstäblich)</text>
+
+    <!-- L-Form Polygon -->
+    <polygon points="90,90 146,90 146,202 230,202 230,258 90,258"
+             fill="var(--green-soft)" stroke="var(--ink)" stroke-width="2.5"/>
+
+    <!-- Trennlinie (gestrichelt) zwischen den zwei Quadern: vertikal bei x=146 -->
+    <line x1="146" y1="202" x2="146" y2="258" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="5 4"/>
+
+    <!-- Beschriftung Langer Schenkel (im vertikalen Teil) -->
+    <text x="118" y="140" class="sk-label" text-anchor="middle" font-weight="700">Langer</text>
+    <text x="118" y="158" class="sk-label" text-anchor="middle" font-weight="700">Schenkel</text>
+    <text x="118" y="178" class="sk-label-s" text-anchor="middle">2,40 m × 0,80 m</text>
+
+    <!-- Beschriftung Kurzer Schenkel (im horizontalen Teil unten rechts) -->
+    <text x="188" y="226" class="sk-label" text-anchor="middle" font-weight="700">Kurzer Schenkel</text>
+    <text x="188" y="244" class="sk-label-s" text-anchor="middle">1,20 m × 0,80 m</text>
+
+    <!-- ===== MAßE ===== -->
+    <!-- Oben: 0,80 m (Breite des langen Schenkels) -->
+    <line x1="90" y1="62" x2="146" y2="62" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lfArr)" marker-end="url(#lfArr)"/>
+    <line x1="90" y1="90" x2="90" y2="58" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="146" y1="90" x2="146" y2="58" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="118" y="54" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">0,80 m</text>
+
+    <!-- Links: 2,40 m (Länge des langen Schenkels) -->
+    <line x1="60" y1="90" x2="60" y2="258" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lfArr)" marker-end="url(#lfArr)"/>
+    <line x1="90" y1="90" x2="56" y2="90" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="90" y1="258" x2="56" y2="258" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="52" y="178" class="sk-label" text-anchor="end" fill="var(--rust)" font-weight="700">2,40 m</text>
+
+    <!-- Rechts vom kurzen Schenkel: 0,80 m (Breite des kurzen Schenkels) -->
+    <line x1="262" y1="202" x2="262" y2="258" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lfArr)" marker-end="url(#lfArr)"/>
+    <line x1="230" y1="202" x2="266" y2="202" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="230" y1="258" x2="266" y2="258" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="270" y="234" class="sk-label" fill="var(--rust)" font-weight="700">0,80 m</text>
+
+    <!-- Unten am kurzen Schenkel: 1,20 m (Länge des kurzen Schenkels) -->
+    <line x1="146" y1="288" x2="230" y2="288" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#lfArr)" marker-end="url(#lfArr)"/>
+    <line x1="146" y1="258" x2="146" y2="292" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="230" y1="258" x2="230" y2="292" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="188" y="306" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">1,20 m</text>
+
+    <!-- Hinweis -->
+    <text x="160" y="330" class="sk-label-s" text-anchor="middle" font-style="italic">Gestrichelte Linie: Zerlegung in zwei Quader</text>
+
+    <!-- ===== Höhe rechts ===== -->
+    <g transform="translate(400 90)">
+      <rect x="0" y="0" width="280" height="220" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+      <text x="140" y="28" class="sk-label" text-anchor="middle" font-weight="700">Höhe des Hochbeets</text>
+      <line x1="14" y1="42" x2="266" y2="42" stroke="var(--ink)" stroke-width="1"/>
+
+      <!-- Kleines Schrägbild (Quader) -->
+      <g transform="translate(60 70)">
+        <rect x="0" y="30" width="70" height="70" fill="var(--green-soft)" stroke="var(--ink)" stroke-width="2"/>
+        <polygon points="0,30 70,30 92,12 22,12" fill="var(--green-soft)" stroke="var(--ink)" stroke-width="2" fill-opacity="0.6"/>
+        <polygon points="70,30 92,12 92,82 70,100" fill="var(--green-soft)" stroke="var(--ink)" stroke-width="2" fill-opacity="0.4"/>
+        <!-- Höhenmaß -->
+        <line x1="-18" y1="30" x2="-18" y2="100" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#lfArrB)" marker-end="url(#lfArrB)"/>
+        <text x="-24" y="69" class="sk-label" text-anchor="end" fill="var(--blue)" font-weight="700">0,75 m</text>
+      </g>
+
+      <text x="180" y="100" class="sk-label-s" font-style="italic">Die Höhe ist bei</text>
+      <text x="180" y="116" class="sk-label-s" font-style="italic">beiden Teilen</text>
+      <text x="180" y="132" class="sk-label-s" font-style="italic">gleich groß.</text>
+
+      <line x1="14" y1="180" x2="266" y2="180" stroke="var(--ink)" stroke-width="1"/>
+      <text x="140" y="200" class="sk-label-s" text-anchor="middle" font-weight="700">Erde-Säcke: 40 Liter pro Sack</text>
+    </g>
+  </svg>`;
+}
+
+function treppeSVG() {
+  // 2D-Seitenansicht der Betontreppe, maßstäblich.
+  // Skala: 1 cm = 2,6 px → Stufentiefe 30 cm = 78 px, Stufenhöhe 18 cm = 47 px
+  return `
+  <svg viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="tArr" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--rust)"/>
+      </marker>
+      <marker id="tArrB" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--blue)"/>
+      </marker>
+      <pattern id="hatchT" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="6" stroke="var(--ink)" stroke-width="0.6" opacity="0.35"/>
+      </pattern>
+    </defs>
+
+    <text x="20" y="28" class="sk-label" font-weight="700">Seitenansicht der Betontreppe (maßstäblich)</text>
+    <text x="20" y="48" class="sk-label-s" font-style="italic">Die Treppe ist 100 cm breit (senkrecht zur Ebene). Beton: 120 €/m³.</text>
+
+    <!-- Boden (Andeutung mit Schraffur-Strichen) -->
+    <line x1="60" y1="300" x2="540" y2="300" stroke="var(--ink)" stroke-width="1.5"/>
+    <g stroke="var(--ink)" stroke-width="1">
+      ${Array.from({length: 24}, (_,i) => {
+        const x = 70 + i*20;
+        return `<line x1="${x}" y1="300" x2="${x-8}" y2="308"/>`;
+      }).join('')}
+    </g>
+
+    <!-- Treppen-Polygon (Schraffur-Füllung) -->
+    <!-- Anfang vorne unten: (130, 300)
+         Stufenhöhe 47 px, Stufentiefe 78 px -->
+    <polygon points="130,300 130,253 208,253 208,206 286,206 286,159 364,159 364,300"
+             fill="url(#hatchT)" stroke="var(--ink)" stroke-width="2.5"/>
+    <polygon points="130,300 130,253 208,253 208,206 286,206 286,159 364,159 364,300"
+             fill="var(--gold-soft)" fill-opacity="0.55" stroke="var(--ink)" stroke-width="2.5"/>
+
+    <!-- Stufen-Nummern -->
+    <text x="169" y="284" class="sk-label" text-anchor="middle" font-weight="700">1</text>
+    <text x="247" y="237" class="sk-label" text-anchor="middle" font-weight="700">2</text>
+    <text x="325" y="190" class="sk-label" text-anchor="middle" font-weight="700">3</text>
+
+    <!-- Beispiel: Stufenhöhe 18 cm (links an der vordersten Stufenkante) -->
+    <line x1="100" y1="300" x2="100" y2="253" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#tArr)" marker-end="url(#tArr)"/>
+    <line x1="130" y1="300" x2="96" y2="300" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="130" y1="253" x2="96" y2="253" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="92" y="280" class="sk-label" text-anchor="end" fill="var(--rust)" font-weight="700">18 cm</text>
+    <text x="92" y="294" class="sk-label-s" text-anchor="end" fill="var(--rust)">(Stufenhöhe)</text>
+
+    <!-- Beispiel: Stufentiefe 30 cm (oben auf der ersten Trittfläche) -->
+    <line x1="130" y1="234" x2="208" y2="234" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#tArr)" marker-end="url(#tArr)"/>
+    <line x1="130" y1="253" x2="130" y2="230" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="208" y1="253" x2="208" y2="230" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="169" y="226" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">30 cm</text>
+    <text x="169" y="214" class="sk-label-s" text-anchor="middle" fill="var(--rust)">(Stufentiefe)</text>
+
+    <!-- Gesamthöhe (rechts) -->
+    <line x1="395" y1="300" x2="395" y2="159" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#tArrB)" marker-end="url(#tArrB)"/>
+    <line x1="364" y1="300" x2="399" y2="300" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="364" y1="159" x2="399" y2="159" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+    <text x="408" y="225" class="sk-label" fill="var(--blue)" font-weight="700">Gesamthöhe</text>
+    <text x="408" y="244" class="sk-label" fill="var(--blue)" font-weight="700">3 · 18 = 54 cm</text>
+
+    <!-- Gesamttiefe (unten) -->
+    <line x1="130" y1="334" x2="364" y2="334" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#tArrB)" marker-end="url(#tArrB)"/>
+    <line x1="130" y1="300" x2="130" y2="338" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="364" y1="300" x2="364" y2="338" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+    <text x="247" y="354" class="sk-label" text-anchor="middle" fill="var(--blue)" font-weight="700">Gesamttiefe: 3 · 30 = 90 cm</text>
+  </svg>`;
+}
+
+function holzkisteSVG() {
+  // Linke Seite: Schrägbild der offenen Kiste
+  // Rechte Seite: Querschnitt mit Wandstärken
+  return `
+  <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="hArr" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--rust)"/>
+      </marker>
+      <marker id="hArrB" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--blue)"/>
+      </marker>
+      <pattern id="holzPat" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+        <rect width="8" height="8" fill="var(--rust-soft)"/>
+        <line x1="0" y1="0" x2="0" y2="8" stroke="var(--rust)" stroke-width="0.8" opacity="0.6"/>
+      </pattern>
+    </defs>
+
+    <!-- ========== LINKS: SCHRÄGBILD ========== -->
+    <text x="170" y="28" class="sk-label" text-anchor="middle" font-weight="700">Schrägbild</text>
+    <text x="170" y="46" class="sk-label-s" text-anchor="middle" font-style="italic">(Blick schräg von oben)</text>
+
+    <!-- Skala: 1 cm = 2.4 px → 60=144, 40 (Tiefe)=96·cos30≈83, dy=-48, 30=72 -->
+    <!-- Vorne unten links: (90, 290) -->
+    <!-- Vordere Fläche -->
+    <polygon points="90,290 234,290 234,218 90,218"
+             fill="var(--gold-soft)" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Rechte Seitenfläche -->
+    <polygon points="234,290 317,242 317,170 234,218"
+             fill="var(--gold-soft)" fill-opacity="0.55" stroke="var(--ink)" stroke-width="2"/>
+    <!-- Hintere Kanten gestrichelt -->
+    <line x1="90" y1="290" x2="173" y2="242" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="173" y1="242" x2="317" y2="242" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="173" y1="242" x2="173" y2="170" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <!-- Obere Außenkanten (Öffnung) -->
+    <line x1="90" y1="218" x2="173" y2="170" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="173" y1="170" x2="317" y2="170" stroke="var(--ink)" stroke-width="2"/>
+
+    <!-- Innen-Öffnung (Versatz Wandstärke 5cm ≈ 12 px nach innen) -->
+    <polygon points="102,206 222,206 283,182 163,182"
+             fill="var(--bg-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+    <text x="193" y="200" class="sk-label-s" text-anchor="middle" font-style="italic">offen — kein Deckel</text>
+
+    <!-- Maße Schrägbild -->
+    <!-- 60 cm Länge unten -->
+    <line x1="90" y1="320" x2="234" y2="320" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+    <line x1="90" y1="290" x2="90" y2="324" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="234" y1="290" x2="234" y2="324" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="162" y="340" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">60 cm</text>
+
+    <!-- 40 cm Tiefe (rechts unten schräg) -->
+    <line x1="244" y1="298" x2="327" y2="250" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+    <line x1="234" y1="290" x2="248" y2="302" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="317" y1="242" x2="331" y2="254" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="305" y="304" class="sk-label" fill="var(--rust)" font-weight="700">40 cm</text>
+
+    <!-- 30 cm Höhe (links) -->
+    <line x1="60" y1="290" x2="60" y2="218" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+    <line x1="90" y1="290" x2="56" y2="290" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="90" y1="218" x2="56" y2="218" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="52" y="259" class="sk-label" text-anchor="end" fill="var(--rust)" font-weight="700">30 cm</text>
+
+    <text x="170" y="368" class="sk-label-s" text-anchor="middle" font-style="italic">Außenmaße der Kiste</text>
+
+    <!-- ========== RECHTS: QUERSCHNITT ========== -->
+    <text x="540" y="28" class="sk-label" text-anchor="middle" font-weight="700">Querschnitt durch die Mitte</text>
+    <text x="540" y="46" class="sk-label-s" text-anchor="middle" font-style="italic">(Längsachse, 1:6)</text>
+
+    <!-- Skala Querschnitt: 1 cm = 3.5 px → 60=210, 30=105, 5=17.5 (sagen wir 18) -->
+    <g transform="translate(420 80)">
+      <!-- "oben offen" oben mittig -->
+      <text x="120" y="-8" class="sk-label-s" text-anchor="middle" fill="var(--rust)" font-weight="700">↓ oben offen — kein Deckel ↓</text>
+
+      <!-- Holz: Boden + zwei Seitenwände, oben offen -->
+      <!-- Außen 240 × 105 px (60×30 cm verzerrt etwas) -->
+      <rect x="0" y="87" width="240" height="18" fill="url(#holzPat)" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="0" y="0" width="18" height="87" fill="url(#holzPat)" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="222" y="0" width="18" height="87" fill="url(#holzPat)" stroke="var(--ink)" stroke-width="2"/>
+
+      <!-- Innenraum gestrichelte Umrandung -->
+      <rect x="18" y="0" width="204" height="87" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text x="120" y="38" class="sk-label" text-anchor="middle" font-weight="700">Innenraum</text>
+      <text x="120" y="58" class="sk-label-s" text-anchor="middle">50 cm × 25 cm</text>
+
+      <!-- Maße unten -->
+      <!-- Wandstärke links 5 cm -->
+      <line x1="0" y1="130" x2="18" y2="130" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+      <text x="9" y="148" class="sk-label-s" text-anchor="middle" fill="var(--rust)" font-weight="700">5 cm</text>
+
+      <!-- Wandstärke rechts 5 cm -->
+      <line x1="222" y1="130" x2="240" y2="130" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+      <text x="231" y="148" class="sk-label-s" text-anchor="middle" fill="var(--rust)" font-weight="700">5 cm</text>
+
+      <!-- Innenmaß 50 cm -->
+      <line x1="18" y1="130" x2="222" y2="130" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#hArrB)" marker-end="url(#hArrB)"/>
+      <text x="120" y="148" class="sk-label-s" text-anchor="middle" fill="var(--blue)" font-weight="700">innen 50 cm</text>
+
+      <!-- Außenmaß 60 cm gesamt -->
+      <line x1="0" y1="172" x2="240" y2="172" stroke="var(--ink)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+      <text x="120" y="190" class="sk-label" text-anchor="middle" font-weight="700">außen 60 cm</text>
+
+      <!-- Höhe rechts: innen 25 cm + 5 cm Boden -->
+      <line x1="262" y1="0" x2="262" y2="87" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#hArrB)" marker-end="url(#hArrB)"/>
+      <line x1="240" y1="0" x2="266" y2="0" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+      <line x1="240" y1="87" x2="266" y2="87" stroke="var(--blue)" stroke-width="0.8" opacity="0.55"/>
+      <text x="270" y="40" class="sk-label-s" fill="var(--blue)" font-weight="700">innen</text>
+      <text x="270" y="56" class="sk-label-s" fill="var(--blue)" font-weight="700">25 cm</text>
+
+      <line x1="262" y1="87" x2="262" y2="105" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+      <line x1="240" y1="105" x2="266" y2="105" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+      <text x="270" y="100" class="sk-label-s" fill="var(--rust)" font-weight="700">5 cm</text>
+
+      <!-- Außen 30 cm gesamt (weiter rechts) -->
+      <line x1="320" y1="0" x2="320" y2="105" stroke="var(--ink)" stroke-width="1.5" marker-start="url(#hArr)" marker-end="url(#hArr)"/>
+      <line x1="262" y1="0" x2="324" y2="0" stroke="var(--ink)" stroke-width="0.8" opacity="0.55"/>
+      <line x1="262" y1="105" x2="324" y2="105" stroke="var(--ink)" stroke-width="0.8" opacity="0.55"/>
+      <text x="326" y="50" class="sk-label-s" font-weight="700">außen</text>
+      <text x="326" y="64" class="sk-label-s" font-weight="700">30 cm</text>
+
+      <!-- Legende -->
+      <g transform="translate(0, 220)">
+        <rect x="0" y="0" width="22" height="14" fill="url(#holzPat)" stroke="var(--ink)" stroke-width="1.5"/>
+        <text x="32" y="11" class="sk-label-s">Holz · Eiche · 0,7 g/cm³</text>
+      </g>
+    </g>
+  </svg>`;
+}
+
+function schwimmbeckenSVG() {
+  // Längsschnitt MAßSTÄBLICH
+  // Horizontal: 1 m = 35 px → 6m = 210, 4m = 140, gesamt 10m = 350
+  // Vertikal:   1 m = 70 px → 1,2m = 84, 2m = 140
+  // Wasseroberfläche y = 90
+  // Flachboden y = 174, Tiefboden y = 230
+  // x-Start = 130, Übergang x = 340, Ende x = 480
+  return `
+  <svg viewBox="-20 0 740 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="swArr" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--rust)"/>
+      </marker>
+      <marker id="swArrB" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--blue)"/>
+      </marker>
+      <pattern id="erde" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="10" stroke="var(--ink)" stroke-width="0.8" opacity="0.45"/>
+      </pattern>
+    </defs>
+
+    <text x="20" y="28" class="sk-label" font-weight="700">Längsschnitt des Schwimmbeckens (maßstäblich)</text>
+    <text x="20" y="48" class="sk-label-s" font-style="italic">Breite des Beckens (senkrecht zur Ebene): 5,00 m · Pumpe: 250 L/min</text>
+
+    <!-- Erdreich rundherum (Schraffur) -->
+    <rect x="80" y="80" width="50" height="230" fill="url(#erde)" stroke="var(--ink)" stroke-width="1.5"/>
+    <rect x="480" y="80" width="50" height="230" fill="url(#erde)" stroke="var(--ink)" stroke-width="1.5"/>
+    <polygon points="130,174 340,174 340,230 480,230 480,310 130,310" fill="url(#erde)" stroke="var(--ink)" stroke-width="1.5"/>
+
+    <!-- Becken: Innenraum gefüllt mit Wasser -->
+    <polygon points="130,90 480,90 480,230 340,230 340,174 130,174"
+             fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="2.5"/>
+
+    <!-- Wasseroberfläche -->
+    <line x1="130" y1="90" x2="480" y2="90" stroke="var(--blue)" stroke-width="2"/>
+    <g opacity="0.45" stroke="var(--blue)" stroke-width="1.2" fill="none">
+      <path d="M 140 100 q 8 -4 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0 t 16 0"/>
+    </g>
+    <text x="305" y="83" class="sk-label-s" text-anchor="middle" fill="var(--blue)" font-style="italic">Wasseroberfläche</text>
+
+    <!-- Bereichsbeschriftungen -->
+    <text x="235" y="138" class="sk-label" text-anchor="middle" font-weight="700">Flachbereich</text>
+    <text x="410" y="168" class="sk-label" text-anchor="middle" font-weight="700">Tiefbereich</text>
+
+    <!-- ===== MAßE ===== -->
+    <!-- 6 m horizontal -->
+    <line x1="130" y1="326" x2="340" y2="326" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#swArr)" marker-end="url(#swArr)"/>
+    <line x1="130" y1="310" x2="130" y2="330" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="340" y1="310" x2="340" y2="330" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="235" y="345" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">6,00 m</text>
+
+    <!-- 4 m horizontal -->
+    <line x1="340" y1="326" x2="480" y2="326" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#swArr)" marker-end="url(#swArr)"/>
+    <line x1="480" y1="310" x2="480" y2="330" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="410" y="345" class="sk-label" text-anchor="middle" fill="var(--rust)" font-weight="700">4,00 m</text>
+
+    <!-- Tiefe flach 1,20 m (links) -->
+    <line x1="52" y1="90" x2="52" y2="174" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#swArr)" marker-end="url(#swArr)"/>
+    <line x1="130" y1="90" x2="48" y2="90" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="130" y1="174" x2="48" y2="174" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="44" y="136" class="sk-label" text-anchor="end" fill="var(--rust)" font-weight="700">1,20 m</text>
+
+    <!-- Tiefe tief 2,00 m (rechts) -->
+    <line x1="558" y1="90" x2="558" y2="230" stroke="var(--rust)" stroke-width="1.5" marker-start="url(#swArr)" marker-end="url(#swArr)"/>
+    <line x1="480" y1="90" x2="562" y2="90" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <line x1="480" y1="230" x2="562" y2="230" stroke="var(--rust)" stroke-width="0.8" opacity="0.55"/>
+    <text x="566" y="164" class="sk-label" fill="var(--rust)" font-weight="700">2,00 m</text>
+
+    <!-- Stufe (Differenz der Tiefen) -->
+    <line x1="356" y1="174" x2="356" y2="230" stroke="var(--blue)" stroke-width="1.5" marker-start="url(#swArrB)" marker-end="url(#swArrB)"/>
+    <text x="364" y="200" class="sk-label-s" fill="var(--blue)" font-weight="700">Stufe</text>
+    <text x="364" y="214" class="sk-label-s" fill="var(--blue)" font-weight="700">0,80 m</text>
+
+    <!-- Legende unten -->
+    <g transform="translate(20 360)">
+      <rect x="0" y="0" width="18" height="14" fill="url(#erde)" stroke="var(--ink)" stroke-width="1"/>
+      <text x="24" y="12" class="sk-label-s">Erdreich</text>
+      <rect x="100" y="0" width="18" height="14" fill="var(--blue-soft)" stroke="var(--ink)" stroke-width="1"/>
+      <text x="124" y="12" class="sk-label-s">Wasser</text>
+    </g>
+
+    <!-- Info-Box rechts -->
+    <g transform="translate(630 90)">
+      <rect x="0" y="0" width="80" height="130" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="40" y="22" class="sk-label-s" text-anchor="middle" font-weight="700">Beckenbreite</text>
+      <text x="40" y="38" class="sk-label-s" text-anchor="middle" font-style="italic">(senkrecht</text>
+      <text x="40" y="52" class="sk-label-s" text-anchor="middle" font-style="italic">zur Ebene)</text>
+      <text x="40" y="80" class="sk-label" text-anchor="middle" fill="var(--blue)" font-weight="700">5,00 m</text>
+      <line x1="8" y1="92" x2="72" y2="92" stroke="var(--ink)" stroke-width="1"/>
+      <text x="40" y="108" class="sk-label-s" text-anchor="middle">Pumpe:</text>
+      <text x="40" y="122" class="sk-label-s" text-anchor="middle" fill="var(--rust)" font-weight="700">250 L/min</text>
+    </g>
+  </svg>`;
+}
+
+/* ============================================================
+   RENDERING & SPA-LOGIK
+   ============================================================ */
+
+function dots(level) {
+  let s = '<div class="dots">';
+  for (let i = 1; i <= 10; i++) {
+    s += `<span class="dot ${i <= level ? 'on' : ''}"></span>`;
+  }
+  s += '</div>';
+  return s;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = aufgaben.map(a => `
+    <button class="card" data-nr="${a.nr}" aria-label="Aufgabe ${a.nr}: ${a.titel}">
+      <span class="tag ${a.isZusammen ? 'zusammen' : ''}">${a.tag}</span>
+      <div class="nr">${a.nr.toString().padStart(2, '0')}</div>
+      <div class="titel">${a.titel}</div>
+      <div class="vorschau">${a.vorschau}</div>
+      <div class="schwierigkeit">
+        <span>Schwierigkeit</span>
+        ${dots(a.schwierigkeit)}
+      </div>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const nr = parseInt(card.dataset.nr, 10);
+      goToDetail(nr, true);
+    });
+  });
+}
+
+function renderDetail(nr) {
+  const a = aufgaben.find(x => x.nr === nr);
+  if (!a) return;
+  const detail = document.getElementById('detail');
+  detail.innerHTML = `
+    <div class="kopf">
+      <div class="nr-big">${a.nr.toString().padStart(2, '0')}</div>
+      <div class="titel-block">
+        <h2>${a.titel}</h2>
+        <div class="meta">
+          <span>Schwierigkeit ${a.schwierigkeit} / 10</span>
+          <span>${a.tag}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="aufgabe-text">${a.text}</div>
+
+    ${a.skizze ? `
+      <div class="skizze">
+        <div class="skizze-label">Skizze zur Aufgabe</div>
+        ${a.skizze}
+      </div>
+    ` : ''}
+
+    <div class="loesung-block" id="loesungBlock">
+      <button class="loesung-toggle" id="loesungToggle">
+        <span class="icon">+</span>
+        <span>Erwartungshorizont anzeigen</span>
+      </button>
+      <div class="loesung-inhalt">${a.loesung}</div>
+    </div>
+  `;
+
+  const block = document.getElementById('loesungBlock');
+  const btn = document.getElementById('loesungToggle');
+  btn.addEventListener('click', () => {
+    block.classList.toggle('open');
+    btn.querySelector('span:last-child').textContent =
+      block.classList.contains('open') ? 'Erwartungshorizont ausblenden' : 'Erwartungshorizont anzeigen';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function goToDetail(nr, pushHistory = true) {
+  renderDetail(nr);
+  document.body.classList.add('view-detail');
+  if (pushHistory) {
+    history.pushState({ view: 'detail', nr }, '', `#aufgabe-${nr}`);
+  }
+}
+
+function goToOverview(pushHistory = true) {
+  document.body.classList.remove('view-detail');
+  if (pushHistory) {
+    history.pushState({ view: 'overview' }, '', '#');
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// Browser-Back / Forward
+window.addEventListener('popstate', (e) => {
+  const state = e.state;
+  if (state && state.view === 'detail') {
+    renderDetail(state.nr);
+    document.body.classList.add('view-detail');
+  } else {
+    document.body.classList.remove('view-detail');
+  }
+});
+
+// Eigener Back-Button
+document.getElementById('backBtn').addEventListener('click', () => {
+  history.back();
+});
+
+// Init
+renderGrid();
+history.replaceState({ view: 'overview' }, '', window.location.pathname);
+
+// Bei Direkt-Aufruf mit #aufgabe-N
+const hash = window.location.hash.match(/#aufgabe-(\d+)/);
+if (hash) {
+  const nr = parseInt(hash[1], 10);
+  if (aufgaben.some(a => a.nr === nr)) {
+    goToDetail(nr, true);
+  }
+}
+</script>
+</body>
+</html>
