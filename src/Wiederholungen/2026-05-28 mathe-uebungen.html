@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathe Klasse 5 – Übungen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #faf8f2;
+      --ink: #0a0a09;
+      --ink-soft: #2a2a26;
+      --accent: #a91d1d;
+      --accent-hover: #851515;
+      --solution-bg: #f4e5b0;
+      --solution-border: #8a6b00;
+      --rule: #1a1a18;
+      --muted: #6b6960;
+      --shadow: 0 4px 0 var(--ink);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 24px 32px 32px;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(169, 29, 29, 0.04) 0, transparent 40%),
+        radial-gradient(circle at 85% 90%, rgba(138, 107, 0, 0.05) 0, transparent 40%);
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--rule);
+      margin-bottom: 32px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 2px solid var(--ink);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s, color 0.15s;
+      border-radius: 2px;
+    }
+
+    .back-btn:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+    .back-btn:active { transform: translateY(2px); }
+
+    .progress {
+      font-family: 'Fraunces', serif;
+      font-variation-settings: "opsz" 144;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .progress .total { color: var(--muted); }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .task-header {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed var(--ink-soft);
+    }
+
+    .task-number {
+      font-family: 'Fraunces', serif;
+      font-variation-settings: "opsz" 144;
+      font-weight: 900;
+      font-size: 96px;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .task-title {
+      font-family: 'Fraunces', serif;
+      font-variation-settings: "opsz" 144;
+      font-weight: 500;
+      font-size: 44px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    /* QUESTION + SOLUTION */
+    .question {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 32px;
+      line-height: 1.4;
+      margin-bottom: 28px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .question .dim {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 36px;
+    }
+
+    .sketch-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 16px 0 28px;
+    }
+
+    .sketch {
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      color: var(--ink);
+    }
+
+    .sketch text {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      fill: var(--ink);
+    }
+
+    .solution {
+      background: var(--solution-bg);
+      border: 2px solid var(--ink);
+      border-left: 8px solid var(--solution-border);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      animation: revealSolution 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+      box-shadow: var(--shadow);
+    }
+
+    .solution-label {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--solution-border);
+      margin-bottom: 12px;
+    }
+
+    .solution-body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      line-height: 1.45;
+    }
+
+    .solution-body .calc {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 32px;
+      display: block;
+      margin: 6px 0;
+    }
+
+    .solution-body .final {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 40px;
+      color: var(--accent);
+      margin-top: 14px;
+      display: inline-block;
+      border-bottom: 4px solid var(--accent);
+      padding-bottom: 2px;
+    }
+
+    .solution-sketch {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      margin: 8px auto 0;
+      display: block;
+    }
+
+    /* ACTIONS */
+    .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+      margin-top: auto;
+      padding-top: 32px;
+    }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      padding: 16px 32px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: transform 0.1s, background 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary:hover { background: var(--ink); color: var(--bg); }
+    .btn-secondary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+    /* TABLE for Aufgabe 4 */
+    .h-table {
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+    }
+
+    .h-table th, .h-table td {
+      border: 2px solid var(--ink);
+      padding: 12px 28px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .h-table th {
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 24px;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.04em;
+    }
+
+    /* CONVERSIONS for Aufgabe 5 */
+    .conv-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 12px 0 24px;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 38px;
+    }
+
+    .conv-list .blank {
+      display: inline-block;
+      min-width: 120px;
+      border-bottom: 3px solid var(--ink);
+      text-align: center;
+      color: var(--accent);
+      margin: 0 8px;
+    }
+
+    /* FINISH SCREEN */
+    .finish {
+      text-align: center;
+      padding: 60px 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .finish-emoji {
+      font-size: 96px;
+      margin-bottom: 12px;
+    }
+
+    .finish-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 64px;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .finish-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px;
+      color: var(--ink-soft);
+      margin-bottom: 32px;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes revealSolution {
+      0% { opacity: 0; transform: translateY(14px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* HIDDEN STATE */
+    .hidden { display: none !important; }
+
+    /* RESPONSIVE */
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      .task-number { font-size: 64px; }
+      .task-title { font-size: 28px; }
+      .question, .solution-body { font-size: 22px; }
+      .conv-list { font-size: 26px; }
+      .h-table { font-size: 22px; }
+      .h-table th, .h-table td { padding: 8px 14px; }
+      .btn { font-size: 18px; padding: 12px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <button class="back-btn" id="backBtn" aria-label="Zurück">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Zurück
+    </button>
+    <div class="progress" id="progress">
+      <span class="current">1</span><span class="total"> / 7</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <div id="taskView">
+      <div class="task-header">
+        <div class="task-number" id="taskNumber">1</div>
+        <h1 class="task-title" id="taskTitle">…</h1>
+      </div>
+      <div id="taskBody"></div>
+      <div id="solutionView" class="hidden"></div>
+    </div>
+
+    <div id="finishView" class="finish hidden">
+      <div class="finish-emoji">✓</div>
+      <div class="finish-title">Geschafft.</div>
+      <div class="finish-sub">Alle 7 Aufgaben durchgegangen.</div>
+      <div class="actions" style="justify-content: center;">
+        <button class="btn btn-secondary" id="restartBtn">Neu starten</button>
+      </div>
+    </div>
+
+    <div class="actions" id="actions">
+      <button class="btn btn-primary" id="actionBtn">Lösung anzeigen</button>
+    </div>
+  </main>
+
+  <script>
+    /* ============================================================
+       SVG HELPERS – Schrägbilder
+       ============================================================ */
+
+    // Standard Quader-Schrägbild (a × b × c) mit Beschriftung
+    // Tiefe b im Schrägbild halb so lang, 45°.
+    function quaderSVG(a, b, c, { labels = true, scale = 50 } = {}) {
+      const dx = (b * scale * 0.5) * Math.cos(Math.PI / 4);
+      const dy = (b * scale * 0.5) * Math.sin(Math.PI / 4);
+      const aPx = a * scale;
+      const cPx = c * scale;
+
+      // Padding so labels live in clean space and the back face fits in the viewBox
+      const padLeft = 140;   // room for "c = X cm"
+      const padTop = 60;     // room for "b = X cm" above back top
+      const padRight = 100;
+      const padBottom = 60;  // room for "a = X cm"
+
+      const x0 = padLeft;
+      const y0 = padTop + dy + cPx;   // <-- account for dy so the back-top doesn't clip
+
+      const F = {
+        BL: [x0, y0],
+        BR: [x0 + aPx, y0],
+        TR: [x0 + aPx, y0 - cPx],
+        TL: [x0, y0 - cPx],
+      };
+      const B = {
+        BL: [F.BL[0] + dx, F.BL[1] - dy],
+        BR: [F.BR[0] + dx, F.BR[1] - dy],
+        TR: [F.TR[0] + dx, F.TR[1] - dy],
+        TL: [F.TL[0] + dx, F.TL[1] - dy],
+      };
+
+      const W = x0 + aPx + dx + padRight;
+      const H = y0 + padBottom;
+
+      const line = (p1, p2, dashed = false) =>
+        `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="currentColor" stroke-width="${dashed ? 2.5 : 3.5}" ${dashed ? 'stroke-dasharray="6,5"' : ''} stroke-linecap="round" />`;
+
+      // Visible
+      let svg = '';
+      svg += line(F.BL, F.BR);
+      svg += line(F.BR, F.TR);
+      svg += line(F.TR, F.TL);
+      svg += line(F.TL, F.BL);
+      svg += line(B.TL, B.TR);
+      svg += line(B.TR, B.BR);
+      svg += line(F.TL, B.TL);
+      svg += line(F.TR, B.TR);
+      svg += line(F.BR, B.BR);
+      // Hidden
+      svg += line(F.BL, B.BL, true);
+      svg += line(B.BL, B.BR, true);
+      svg += line(B.BL, B.TL, true);
+
+      if (labels) {
+        // a — below front bottom edge (clean space below the body)
+        svg += `<text x="${(F.BL[0] + F.BR[0]) / 2}" y="${F.BL[1] + 34}" text-anchor="middle" font-size="24">a = ${a} cm</text>`;
+        // c — outside left, vertical centre of the front-left edge
+        svg += `<text x="${F.BL[0] - 14}" y="${(F.BL[1] + F.TL[1]) / 2 + 8}" text-anchor="end" font-size="24">c = ${c} cm</text>`;
+        // b — ABOVE the back top edge (centred). No edges in that region.
+        svg += `<text x="${(B.TL[0] + B.TR[0]) / 2}" y="${B.TR[1] - 18}" text-anchor="middle" font-size="24">b = ${b} cm</text>`;
+      }
+
+      return `<svg class="sketch" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${svg}</svg>`;
+    }
+
+    // Compound body (stacked L-shape) for Aufgabe 7
+    // Lower box: A_w × A_d × A_h (depth × width × height in cm)
+    // Upper box (on left half of lower top): U_w × U_d × U_h
+    // For our case: lower = 4 × 3 × 2, upper = 2 × 3 × 2 sitting on left.
+    function compoundLSVG({ showDecomp = false, scale = 50 } = {}) {
+      // dimensions (cm)
+      const Lw = 4, Lh = 2;        // lower block in front view
+      const Uw = 2, Uh = 2;        // upper block (sits on left half of lower top)
+      const D  = 3;                // depth (both blocks)
+
+      const dx = (D * scale * 0.5) * Math.cos(Math.PI / 4);
+      const dy = (D * scale * 0.5) * Math.sin(Math.PI / 4);
+
+      const padLeft = 100;
+      const padTop = 80;       // room for "2 cm" upper-width label above body
+      const padRight = 130;    // room for "2 cm" lower-height label outside body
+      const padBottom = 60;
+
+      const x0 = padLeft;
+      const y0 = padTop + dy + (Lh + Uh) * scale;  // account for dy
+
+      const F1 = [x0,                    y0];
+      const F2 = [x0 + Lw * scale,      y0];
+      const F3 = [x0 + Lw * scale,      y0 - Lh * scale];
+      const F4 = [x0 + Uw * scale,      y0 - Lh * scale];
+      const F5 = [x0 + Uw * scale,      y0 - (Lh + Uh) * scale];
+      const F6 = [x0,                    y0 - (Lh + Uh) * scale];
+
+      const shift = (p) => [p[0] + dx, p[1] - dy];
+      const B1 = shift(F1), B2 = shift(F2), B3 = shift(F3),
+            B4 = shift(F4), B5 = shift(F5), B6 = shift(F6);
+
+      const W = x0 + Lw * scale + dx + padRight;
+      const H = y0 + padBottom;
+
+      const line = (p1, p2, dashed = false) =>
+        `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="currentColor" stroke-width="${dashed ? 2.5 : 3.5}" ${dashed ? 'stroke-dasharray="6,5"' : ''} stroke-linecap="round" />`;
+
+      let svg = '';
+
+      // Front L perimeter (visible)
+      svg += line(F1, F2);
+      svg += line(F2, F3);
+      svg += line(F3, F4);
+      svg += line(F4, F5);
+      svg += line(F5, F6);
+      svg += line(F6, F1);
+
+      // Back visible edges
+      svg += line(B5, B6);
+      svg += line(B4, B5);
+      svg += line(B3, B4);
+      svg += line(B2, B3);
+
+      // Depth visible edges
+      svg += line(F2, B2);
+      svg += line(F3, B3);
+      svg += line(F4, B4);
+      svg += line(F5, B5);
+      svg += line(F6, B6);
+
+      // Hidden edges
+      svg += line(F1, B1, true);
+      svg += line(B1, B2, true);
+      svg += line(B1, B6, true);
+
+      // Decomposition overlay LAST so it sits on top
+      if (showDecomp) {
+        svg += `<line x1="${F6[0]}" y1="${F4[1]}" x2="${F4[0]}" y2="${F4[1]}" stroke="var(--accent)" stroke-width="3" stroke-dasharray="8,5" stroke-linecap="round" />`;
+      }
+
+      // Labels — all in clean areas, no edges crossing
+      // 4 cm — below front bottom (outside body)
+      svg += `<text x="${(F1[0] + F2[0]) / 2}" y="${F1[1] + 34}" text-anchor="middle" font-size="24">4 cm</text>`;
+      // 2 cm (lower height) — outside RIGHT of back-right vertical B2–B3
+      svg += `<text x="${B2[0] + 14}" y="${(B2[1] + B3[1]) / 2 + 8}" text-anchor="start" font-size="24">2 cm</text>`;
+      // 2 cm (upper height) — outside LEFT, along upper portion of front-left edge
+      svg += `<text x="${F6[0] - 14}" y="${(F6[1] + F4[1]) / 2 + 8}" text-anchor="end" font-size="24">2 cm</text>`;
+      // 2 cm (upper width) — ABOVE back-top edge of upper (outside body)
+      svg += `<text x="${(B5[0] + B6[0]) / 2}" y="${B5[1] - 18}" text-anchor="middle" font-size="24">2 cm</text>`;
+      // 3 cm (depth) — inside top face of upper, shifted right of hidden edge B1–B6 (at x=B6[0])
+      svg += `<text x="${B6[0] + 32}" y="${(F6[1] + B6[1]) / 2 + 6}" text-anchor="middle" font-size="24">3 cm</text>`;
+
+      return `<svg class="sketch" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${svg}</svg>`;
+    }
+
+    /* ============================================================
+       TASKS
+       ============================================================ */
+
+    const tasks = [
+      // 1 — Schrägbild zeichnen
+      {
+        title: 'Schrägbild zeichnen',
+        questionHTML: `
+          <p class="question">Zeichne ein Schrägbild zum Quader mit<br>
+            <span class="dim">a = 4 cm,&nbsp; b = 2 cm,&nbsp; c = 3 cm</span>
+          </p>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            ${quaderSVG(4, 2, 3, { scale: 50 }).replace('class="sketch"', 'class="solution-sketch"')}
+            <p style="font-size:22px; margin-top:10px; color: var(--ink-soft);">Tiefe halb so lang, Winkel 45°. Verdeckte Kanten gestrichelt.</p>
+          </div>
+        `,
+      },
+
+      // 2 — Seitenflächen Quader
+      {
+        title: 'Inhalt der Seitenflächen',
+        questionHTML: `
+          <p class="question">Berechne den Inhalt der drei verschiedenen Seitenflächen.</p>
+          <div class="sketch-wrap">${quaderSVG(5, 3, 2, { scale: 55 })}</div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <span class="calc">a · b = 5 cm · 3 cm = <strong>15 cm²</strong></span>
+            <span class="calc">a · c = 5 cm · 2 cm = <strong>10 cm²</strong></span>
+            <span class="calc">b · c = 3 cm · 2 cm = <strong>6 cm²</strong></span>
+          </div>
+        `,
+      },
+
+      // 3 — Oberflächeninhalt Quader
+      {
+        title: 'Oberflächeninhalt berechnen',
+        questionHTML: `
+          <p class="question">Berechne den Oberflächeninhalt <span class="dim">O</span> des Quaders.</p>
+          <div class="sketch-wrap">${quaderSVG(4, 3, 2, { scale: 55 })}</div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <span class="calc">O = 2 · (a·b + a·c + b·c)</span>
+            <span class="calc">O = 2 · (4·3 + 4·2 + 3·2) cm²</span>
+            <span class="calc">O = 2 · (12 + 8 + 6) cm² = 2 · 26 cm²</span>
+            <span class="final">O = 52 cm²</span>
+          </div>
+        `,
+      },
+
+      // 4 — Arithmetisches Mittel
+      {
+        title: 'Arithmetisches Mittel',
+        questionHTML: `
+          <p class="question">Anzahl Bücher pro Kind.<br>Berechne das arithmetische Mittel.</p>
+          <div style="display:flex; justify-content:center;">
+            <table class="h-table">
+              <thead>
+                <tr><th>Bücher</th><th>Häufigkeit</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>2</td><td>3</td></tr>
+                <tr><td>3</td><td>4</td></tr>
+                <tr><td>4</td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <span class="calc">Anzahl: 3 + 4 + 3 = 10 Kinder</span>
+            <span class="calc">Summe: 2·3 + 3·4 + 4·3 = 6 + 12 + 12 = 30</span>
+            <span class="calc">x̄ = 30 : 10</span>
+            <span class="final">x̄ = 3 Bücher</span>
+          </div>
+        `,
+      },
+
+      // 5 — Volumeneinheiten umrechnen
+      {
+        title: 'Volumeneinheiten umrechnen',
+        questionHTML: `
+          <p class="question">Rechne um:</p>
+          <div class="conv-list">
+            <div>a)&nbsp; 5 l&nbsp;=&nbsp;<span class="blank">?</span>&nbsp;dm³</div>
+            <div>b)&nbsp; 3 000 cm³&nbsp;=&nbsp;<span class="blank">?</span>&nbsp;l</div>
+            <div>c)&nbsp; 2 m³&nbsp;=&nbsp;<span class="blank">?</span>&nbsp;l</div>
+            <div>d)&nbsp; 250 ml&nbsp;=&nbsp;<span class="blank">?</span>&nbsp;cm³</div>
+          </div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <span class="calc">a) 5 l = <strong>5 dm³</strong></span>
+            <span class="calc">b) 3 000 cm³ = <strong>3 l</strong></span>
+            <span class="calc">c) 2 m³ = <strong>2 000 l</strong></span>
+            <span class="calc">d) 250 ml = <strong>250 cm³</strong></span>
+          </div>
+        `,
+      },
+
+      // 6 — Volumen Quader
+      {
+        title: 'Volumen des Quaders',
+        questionHTML: `
+          <p class="question">Berechne das Volumen <span class="dim">V</span>.</p>
+          <div class="sketch-wrap">${quaderSVG(5, 4, 3, { scale: 50 })}</div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <span class="calc">V = a · b · c</span>
+            <span class="calc">V = 5 cm · 4 cm · 3 cm</span>
+            <span class="final">V = 60 cm³</span>
+          </div>
+        `,
+      },
+
+      // 7 — Zusammengesetzter Körper
+      {
+        title: 'Volumen eines zusammengesetzten Körpers',
+        questionHTML: `
+          <p class="question">Berechne das Volumen des Körpers.</p>
+          <div class="sketch-wrap">${compoundLSVG()}</div>
+        `,
+        solutionHTML: () => `
+          <div class="solution-label">Lösung</div>
+          <div class="solution-body">
+            <div class="sketch-wrap" style="margin: 0 0 14px;">${compoundLSVG({ showDecomp: true })}</div>
+            <span class="calc">Unterer Quader: 4 · 3 · 2 = 24 cm³</span>
+            <span class="calc">Oberer Quader: 2 · 3 · 2 = 12 cm³</span>
+            <span class="calc">V = 24 cm³ + 12 cm³</span>
+            <span class="final">V = 36 cm³</span>
+          </div>
+        `,
+      },
+    ];
+
+    /* ============================================================
+       APP LOGIC
+       ============================================================ */
+
+    const state = {
+      index: 0,
+      revealed: false,
+    };
+
+    const el = {
+      taskView: document.getElementById('taskView'),
+      taskNumber: document.getElementById('taskNumber'),
+      taskTitle: document.getElementById('taskTitle'),
+      taskBody: document.getElementById('taskBody'),
+      solutionView: document.getElementById('solutionView'),
+      actionBtn: document.getElementById('actionBtn'),
+      actions: document.getElementById('actions'),
+      progress: document.getElementById('progress'),
+      backBtn: document.getElementById('backBtn'),
+      finishView: document.getElementById('finishView'),
+      restartBtn: document.getElementById('restartBtn'),
+    };
+
+    function renderTask() {
+      const t = tasks[state.index];
+      el.taskNumber.textContent = String(state.index + 1);
+      el.taskTitle.textContent = t.title;
+      el.taskBody.innerHTML = t.questionHTML;
+      el.solutionView.innerHTML = '';
+      el.solutionView.classList.add('hidden');
+      el.actionBtn.textContent = 'Lösung anzeigen';
+      el.progress.innerHTML = `<span class="current">${state.index + 1}</span><span class="total"> / 7</span>`;
+      state.revealed = false;
+    }
+
+    function revealSolution() {
+      const t = tasks[state.index];
+      el.solutionView.innerHTML = `<div class="solution">${t.solutionHTML()}</div>`;
+      el.solutionView.classList.remove('hidden');
+      el.actionBtn.textContent = state.index === tasks.length - 1 ? 'Fertig' : 'Nächste Aufgabe →';
+      state.revealed = true;
+      el.solutionView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function nextTask() {
+      if (state.index === tasks.length - 1) {
+        showFinish();
+        return;
+      }
+      state.index++;
+      renderTask();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showFinish() {
+      el.taskView.classList.add('hidden');
+      el.actions.classList.add('hidden');
+      el.finishView.classList.remove('hidden');
+    }
+
+    function restart() {
+      state.index = 0;
+      state.revealed = false;
+      el.finishView.classList.add('hidden');
+      el.taskView.classList.remove('hidden');
+      el.actions.classList.remove('hidden');
+      renderTask();
+    }
+
+    el.actionBtn.addEventListener('click', () => {
+      if (!state.revealed) revealSolution();
+      else nextTask();
+    });
+
+    el.backBtn.addEventListener('click', () => history.back());
+    el.restartBtn.addEventListener('click', restart);
+
+    // Keyboard: Space or Enter to advance
+    window.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!el.finishView.classList.contains('hidden')) return;
+        if (!state.revealed) revealSolution();
+        else nextTask();
+      }
+    });
+
+    renderTask();
+  </script>
+</body>
+</html>
