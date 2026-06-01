@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dezimalzahlen – Fehlvorstellungen | NPPPN & Testing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3EFE6; --bg2:#FBF9F3; --ink:#1E2622; --ink-soft:#5C645E;
+  --line:#DAD3C4; --line-soft:#E7E1D4;
+  --fill:#1D9E75; --fill-soft:#CDE9DD;
+  --yes:#2E7D32; --yes-bg:#E4F0E2; --no:#C0392B; --no-bg:#F6E4E1;
+  --fv:#0F6E56;
+  --shadow:0 18px 50px -24px rgba(20,30,25,.35);
+}
+html[data-theme="dark"]{
+  --bg:#121714; --bg2:#1A211D; --ink:#ECE7DB; --ink-soft:#9AA39C;
+  --line:#2C3631; --line-soft:#232C28;
+  --fill:#3FBE93; --fill-soft:#143229;
+  --yes:#7CC47F; --yes-bg:#16271A; --no:#E07A6E; --no-bg:#2A1A18;
+  --fv:#5DCAA5;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Hanken Grotesk',system-ui,sans-serif;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  transition:background .4s ease,color .4s ease;
+}
+.stage{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:clamp(20px,4vh,56px) clamp(20px,4vw,64px);
+  cursor:pointer;
+}
+.card{
+  width:min(1180px,100%); max-height:100%;
+  background:var(--bg2); border:1px solid var(--line);
+  border-radius:24px; box-shadow:var(--shadow);
+  padding:clamp(26px,4.2vh,52px) clamp(30px,4.5vw,66px);
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+  animation:rise .45s cubic-bezier(.2,.7,.2,1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--fv);
+}
+
+/* header row */
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:clamp(14px,3vh,30px)}
+.eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tag{
+  font-size:clamp(12px,1.5vw,15px); font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--fv);
+}
+.tag.phase{color:var(--ink-soft)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--line);}
+.seq-dots{display:flex;gap:9px;align-items:center}
+.seq-dots span{
+  width:clamp(26px,3vw,34px);height:clamp(26px,3vw,34px);border-radius:9px;
+  display:grid;place-items:center;font-size:clamp(12px,1.4vw,15px);font-weight:600;
+  border:1.5px solid var(--line);color:var(--ink-soft);background:transparent;
+}
+.seq-dots span.on{background:var(--fv);border-color:var(--fv);color:#fff}
+html[data-theme="dark"] .seq-dots span.on{color:#0c130f}
+
+/* body */
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.kicker{font-size:clamp(15px,1.8vw,19px);color:var(--ink-soft);margin-bottom:10px}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:500;line-height:1.02;letter-spacing:-.015em}
+.cover h1{font-size:clamp(34px,6.4vw,76px);margin-bottom:18px}
+.fv-title{font-size:clamp(30px,5.2vw,60px);margin-bottom:6px}
+.task{
+  font-family:'Fraunces',Georgia,serif;font-weight:500;
+  font-size:clamp(44px,9vw,118px);line-height:1;letter-spacing:-.02em;
+  text-align:center;margin:clamp(8px,2vh,20px) 0;
+}
+.task .op{color:var(--fv);padding:0 .12em}
+.box-slot{font-style:normal;color:var(--ink-soft);border-bottom:4px solid var(--line);padding:0 .35em;border-radius:3px}
+
+/* supports */
+.support{display:flex;justify-content:center;align-items:flex-start;gap:clamp(24px,5vw,72px);margin-top:clamp(6px,1.6vh,16px)}
+.dq{display:flex;flex-direction:column;align-items:center;gap:12px}
+.dq-grid{
+  width:clamp(150px,17vw,210px);aspect-ratio:1;
+  display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);
+  grid-auto-flow:column;
+  border:2px solid var(--ink);border-radius:4px;overflow:hidden;background:var(--bg2);
+}
+.dq-grid i{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.dq-grid i.on{background:var(--fill)}
+.dq-cap{font-size:clamp(15px,1.7vw,19px);color:var(--ink-soft)}
+.dq-num{font-family:'Fraunces',serif;font-size:clamp(24px,3vw,38px);font-weight:500}
+
+/* place value table */
+.pv{border-collapse:separate;border-spacing:0;margin:0 auto;font-size:clamp(20px,2.6vw,34px)}
+.pv th{font-size:clamp(12px,1.4vw,16px);font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;padding:0 0 8px;font-family:'Hanken Grotesk',sans-serif}
+.pv td{
+  width:clamp(48px,6vw,82px);height:clamp(54px,6.6vw,86px);text-align:center;
+  font-family:'Fraunces',serif;font-weight:500;border:1.5px solid var(--line);
+}
+.pv td.comma{width:auto;border:none;color:var(--fv);font-weight:600;padding:0 4px}
+.pv td.pad{color:var(--ink-soft);opacity:.4}
+.pv td.empty{background:repeating-linear-gradient(135deg,transparent,transparent 6px,var(--line-soft) 6px,var(--line-soft) 7px)}
+.pv tr.r2 td{border-top:none}
+
+/* reading chips */
+.chips{display:flex;justify-content:center;gap:clamp(8px,1vw,14px);flex-wrap:wrap;margin-bottom:14px}
+.chip{display:flex;flex-direction:column;align-items:center;gap:6px}
+.chip b{
+  font-family:'Fraunces',serif;font-weight:500;font-size:clamp(28px,4vw,52px);
+  width:clamp(48px,6vw,78px);height:clamp(56px,7vw,90px);display:grid;place-items:center;
+  border:1.5px solid var(--line);border-radius:10px;
+}
+.chip.comma b{border:none;color:var(--fv)}
+.chip s{font-size:clamp(11px,1.3vw,14px);color:var(--ink-soft);text-decoration:none;letter-spacing:.03em}
+.read{text-align:center;font-size:clamp(20px,2.8vw,34px);color:var(--ink)}
+.read q{font-family:'Fraunces',serif;font-style:italic;color:var(--fv)}
+
+/* answer */
+.answer{margin-top:clamp(12px,2.4vh,26px);min-height:clamp(78px,12vh,128px);display:flex;align-items:center;justify-content:center}
+.cover-hint,.veil{
+  display:flex;align-items:center;gap:12px;color:var(--ink-soft);
+  font-size:clamp(14px,1.7vw,19px);border:1.5px dashed var(--line);
+  border-radius:14px;padding:14px 22px;
+}
+.reveal{display:flex;flex-direction:column;align-items:center;gap:12px;animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.verdict{display:flex;align-items:center;gap:16px}
+.badge{
+  width:clamp(54px,7vw,82px);height:clamp(54px,7vw,82px);border-radius:50%;
+  display:grid;place-items:center;flex:none;
+}
+.badge svg{width:55%;height:55%}
+.badge.yes{background:var(--yes-bg)} .badge.yes svg{stroke:var(--yes)}
+.badge.no{background:var(--no-bg)} .badge.no svg{stroke:var(--no)}
+.verdict b{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(34px,5vw,60px)}
+.verdict.yes b{color:var(--yes)} .verdict.no b{color:var(--no)}
+.sol{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(40px,6vw,76px);color:var(--fv)}
+.note{font-size:clamp(15px,1.9vw,21px);color:var(--ink-soft);max-width:760px;text-align:center;line-height:1.4}
+
+/* intro blocks */
+.atom-box{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,2.4vw,28px);margin:14px 0}
+.atom-box .lab{font-size:clamp(12px,1.4vw,15px);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+.atom-box .val{font-family:'Fraunces',serif;font-size:clamp(22px,3.2vw,40px);font-weight:500;line-height:1.12}
+.meta-row{display:flex;gap:clamp(16px,2.5vw,32px);flex-wrap:wrap;margin-top:6px}
+.meta{flex:1;min-width:240px}
+.meta .lab{font-size:clamp(12px,1.4vw,15px);font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fv);margin-bottom:6px}
+.meta p{font-size:clamp(15px,1.9vw,21px);line-height:1.45;color:var(--ink)}
+.script{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(17px,2.2vw,26px);line-height:1.4}
+
+/* footer */
+.foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:clamp(14px,2.6vh,28px);padding-top:14px;border-top:1px solid var(--line-soft)}
+.counter{font-size:clamp(13px,1.5vw,16px);color:var(--ink-soft)}
+.nav{display:flex;gap:10px}
+.btn{
+  font:inherit;font-size:clamp(13px,1.5vw,16px);font-weight:600;cursor:pointer;
+  background:transparent;color:var(--ink);border:1.5px solid var(--line);
+  border-radius:11px;padding:9px 16px;display:inline-flex;align-items:center;gap:7px;
+  transition:border-color .2s,background .2s,transform .1s;
+}
+.btn:hover{border-color:var(--fv)} .btn:active{transform:translateY(1px)}
+.btn.solid{background:var(--fv);border-color:var(--fv);color:#fff}
+html[data-theme="dark"] .btn.solid{color:#0c130f}
+.btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* top utility */
+.util{position:fixed;top:16px;right:18px;display:flex;gap:8px;z-index:20}
+.icon-btn{
+  width:42px;height:42px;border-radius:11px;border:1.5px solid var(--line);background:var(--bg2);
+  color:var(--ink);cursor:pointer;display:grid;place-items:center;transition:border-color .2s}
+.icon-btn:hover{border-color:var(--fv)}
+.icon-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.kbd{display:inline-flex;gap:5px;align-items:center}
+.kbd b{font-family:inherit;font-weight:600;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:.86em}
+.center{text-align:center}
+.cover .sub{font-size:clamp(16px,2.1vw,24px);color:var(--ink-soft);max-width:680px;margin-bottom:22px;line-height:1.4}
+.cover .legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-start;margin-bottom:26px}
+.pill{display:flex;align-items:center;gap:9px;font-size:clamp(14px,1.7vw,18px);border:1px solid var(--line);border-radius:999px;padding:8px 16px}
+.pill i{width:13px;height:13px;border-radius:50%}
+@media (max-width:640px){.support{gap:20px}.foot{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="util">
+  <button class="icon-btn" id="theme" title="Hell / Dunkel (D)"><svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.5-6.5-1.4 1.4M6.9 17.1l-1.4 1.4m13.6 0-1.4-1.4M6.9 6.9 5.5 5.5"/><circle cx="12" cy="12" r="4"/></svg></button>
+  <button class="icon-btn" id="full" title="Vollbild (F)"><svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4m11-5v4a1 1 0 0 1-1 1h-4"/></svg></button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<script>
+const FV = [
+  {n:1, name:'„längere Zahl = größere Zahl"', accent:'#0F6E56', accentDark:'#5DCAA5',
+   atom:'Stimmt diese Größer-als-Aussage?',
+   critical:'Die Größe hängt vom Stellenwert ab – nicht von der Anzahl der Ziffern.',
+   script:'„Hier steht eine Behauptung und daneben die beiden Flächen. Daumen hoch, wenn die Behauptung stimmt – Daumen runter, wenn nicht."',
+   testingScript:'Schreibe < , > oder = zwischen die Zahlen. Jetzt ohne Stütze.',
+   npppn:[
+     {label:'N1', task:['0,12','>','0,7'], sup:{k:'dq',a:'0,12',b:'0,7'}, yes:false, note:'Kernfehler: die längere Zahl scheint größer. Die Fläche zeigt das Gegenteil.'},
+     {label:'P1', task:['0,7','>','0,12'], sup:{k:'dq',a:'0,7',b:'0,12'}, yes:true, note:'Minimale Änderung – nur gedreht. 70 Kästchen gegen 12.'},
+     {label:'P2', task:['0,9','>','0,45'], sup:{k:'dq',a:'0,9',b:'0,45'}, yes:true, note:'Maximale Variation, gleiches Prinzip: 90 gegen 45.'},
+     {label:'P3', task:['0,6','>','0,599'], sup:{k:'pv',a:'0,6',b:'0,599'}, yes:true, note:'Auf gleiche Länge gebracht: 0,600 gegen 0,599. An der Zehntelstelle entscheidet sich alles.'},
+     {label:'N2', task:['0,599','>','0,6'], sup:{k:'pv',a:'0,599',b:'0,6'}, yes:false, note:'Minimale Änderung von P3 – nur gedreht. Drei Stellen machen die Zahl nicht größer.'}
+   ],
+   testing:[
+     {label:'T1', task:['0,8','☐','0,21'], sol:'>', note:'Standardfall'},
+     {label:'T2', task:['0,45','☐','0,5'], sol:'<', note:'Kürzere Zahl ist größer'},
+     {label:'T3', task:['0,7','☐','0,70'], sol:'=', note:'Grenzfall Gleichheit (Brücke zu Fehlvorstellung 3)'},
+     {label:'T4', task:['0,309','☐','0,4'], sol:'<', note:'Drei Stellen gegen eine'},
+     {label:'T5', task:['0,99','☐','0,9'], sol:'>', note:'Gleicher Anfang, dann länger und größer'},
+     {label:'T6', task:['0,1','☐','0,099'], sol:'>', note:'Längere Zahl ist kleiner'}
+   ]},
+
+  {n:2, name:'„das Komma trennt zwei Zahlen"', accent:'#185FA5', accentDark:'#85B7EB',
+   atom:'Wird diese Zahl Stelle für Stelle korrekt gelesen?',
+   critical:'Jede Nachkommaziffer wird einzeln gesprochen – eine 0 wird nicht verschluckt.',
+   script:'„Ich zeige eine Zahl und spreche sie vor. Daumen hoch, wenn ich sie Stelle für Stelle richtig gelesen habe – Daumen runter, wenn nicht."',
+   testingScript:'Lies bzw. schreibe stellenweise. Achte besonders auf die Nullen.',
+   npppn:[
+     {label:'N1', read:{z:'3,45', g:'drei Komma fünfundvierzig'}, yes:false, note:'Kernfehler: der Nachkommateil wird als ganze Zahl gelesen.'},
+     {label:'P1', read:{z:'3,45', g:'drei Komma vier fünf'}, yes:true, note:'Minimale Änderung – stellenweise gelesen.'},
+     {label:'P2', read:{z:'5,6', g:'fünf Komma sechs'}, yes:true, note:'Maximale Variation – einstellig.'},
+     {label:'P3', read:{z:'2,08', g:'zwei Komma null acht'}, yes:true, note:'Maximale Variation – mit Null an der Zehntelstelle.'},
+     {label:'N2', read:{z:'2,08', g:'zwei Komma acht'}, yes:false, note:'Minimale Änderung von P3 – die Null wurde verschluckt.'}
+   ],
+   testing:[
+     {label:'T1', prompt:'In 3,72 – welche Ziffer steht an der Hundertstelstelle?', sol:'2', note:'Stellenwert-Zuordnung'},
+     {label:'T2', prompt:'Schreibe „sechs Komma null drei" als Zahl.', sol:'6,03', note:'Null hörbar → Null schreiben'},
+     {label:'T3', prompt:'In 0,805 – welche Ziffer steht an der Zehntelstelle?', sol:'8', note:'Erste Nachkommastelle'},
+     {label:'T4', prompt:'Schreibe „null Komma neun zwei" als Zahl.', sol:'0,92', note:'Stellenweise schreiben'},
+     {label:'T5', prompt:'In 5,40 – welche Ziffer steht an der Tausendstelstelle?', sol:'0', note:'Leere Stelle = 0 (Grenzfall)'},
+     {label:'T6', prompt:'In 2,008 – welche Ziffer steht an der Hundertstelstelle?', sol:'0', note:'Innere Null erkennen'}
+   ]},
+
+  {n:3, name:'„Nullen anhängen ändert den Wert"', accent:'#9C3B6A', accentDark:'#E093B6',
+   atom:'Sind diese beiden Dezimalzahlen gleich groß?',
+   critical:'Eine Endnull rechts außen ändert nichts – eine Null nach dem Komma oder zwischen Ziffern schon.',
+   script:'„Hier stehen zwei Zahlen mit einem Gleichheitszeichen. Daumen hoch, wenn sie wirklich gleich groß sind – Daumen runter, wenn nicht."',
+   testingScript:'Urteile mit = oder ≠. Achte darauf, wo die Null steht.',
+   npppn:[
+     {label:'N1', task:['0,03','=','0,3'], sup:{k:'pv',a:'0,03',b:'0,3'}, yes:false, note:'Kernfehler: die Null direkt nach dem Komma ist bedeutsam – sie macht aus Zehnteln Hundertstel.'},
+     {label:'P1', task:['0,30','=','0,3'], sup:{k:'pv',a:'0,30',b:'0,3'}, yes:true, note:'Minimale Änderung – dieselbe Null, jetzt am Ende. Eine Endnull ändert nichts.'},
+     {label:'P2', task:['0,5','=','0,50'], sup:{k:'pv',a:'0,5',b:'0,50'}, yes:true, note:'Maximale Variation – andere Ziffer, Reihenfolge gedreht.'},
+     {label:'P3', task:['1,20','=','1,2'], sup:{k:'pv',a:'1,20',b:'1,2'}, yes:true, note:'Maximale Variation – mit Ganzzahlteil.'},
+     {label:'N2', task:['1,20','=','1,02'], sup:{k:'pv',a:'1,20',b:'1,02'}, yes:false, note:'Minimale Änderung von P3 – aus der Endnull wird eine Innennull. Das verändert den Wert.'}
+   ],
+   testing:[
+     {label:'T1', task:['0,60','☐','0,6'], sol:'=', note:'Endnull egal'},
+     {label:'T2', task:['0,06','☐','0,6'], sol:'≠', note:'Null nach dem Komma ist bedeutsam'},
+     {label:'T3', task:['3,40','☐','3,4'], sol:'=', note:'Endnull mit Ganzzahlteil'},
+     {label:'T4', task:['2,05','☐','2,50'], sol:'≠', note:'Gleiche Ziffern, andere Stellen'},
+     {label:'T5', task:['0,070','☐','0,07'], sol:'=', note:'Endnull egal, Innennull bleibt'},
+     {label:'T6', prompt:'Streiche bei 0,500 jede Null, die man weglassen darf.', sol:'0,5', note:'Produktiv: nur Endnullen identifizieren'}
+   ]}
+];
+
+// build flat slide list
+const slides = [{type:'cover'}];
+FV.forEach(fv=>{
+  let num=0;
+  fv.npppn.forEach(it=>{num++;slides.push({type:'task', fv, it, num});});
+  fv.testing.forEach(it=>{num++;slides.push({type:'task', fv, it, num});});
+});
+slides.push({type:'end'});
+
+let cur=0, revealed=false;
+const stage=document.getElementById('stage');
+const dark=()=>document.documentElement.getAttribute('data-theme')==='dark';
+
+const ICON={
+  yes:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  no:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  prev:'<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>',
+  eye:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
+};
+
+function accent(fv){return dark()? fv.accentDark : fv.accent;}
+
+function decimalQuad(numStr){
+  // numStr like "0,7" or "0,12" -> filled cells out of 100
+  const dec=(numStr.split(',')[1]||'').padEnd(2,'0').slice(0,2);
+  const filled=parseInt(dec,10);
+  let cells='';
+  for(let i=0;i<100;i++) cells+=`<i class="${i<filled?'on':''}"></i>`;
+  return `<div class="dq"><div class="dq-grid">${cells}</div>
+    <div class="dq-num">${numStr}</div><div class="dq-cap">${filled} von 100 Kästchen</div></div>`;
+}
+
+function placeValue(aStr,bStr){
+  // columns: Einer | , | zehntel | hundertstel | tausendstel
+  const cols=['z','h','t'];
+  function parse(s){const[int,dec='']=s.split(',');return{int:int,dec:dec};}
+  function row(s,cls){
+    const p=parse(s);
+    const digits=p.dec.split('');
+    let tds=`<td>${p.int}</td><td class="comma">,</td>`;
+    for(let i=0;i<3;i++){
+      if(i<digits.length){
+        const isEndZero = digits[i]==='0' && digits.slice(i).every(d=>d==='0');
+        tds+=`<td class="${isEndZero?'pad':''}">${digits[i]}</td>`;
+      } else {
+        tds+=`<td class="empty"></td>`;
+      }
+    }
+    return `<tr class="${cls}">${tds}</tr>`;
+  }
+  return `<table class="pv">
+    <thead><tr><th>E</th><th></th><th>z</th><th>h</th><th>t</th></tr></thead>
+    <tbody>${row(aStr,'r1')}${row(bStr,'r2')}</tbody></table>`;
+}
+
+function chips(numStr){
+  const names={int:'Einer',0:'Zehntel',1:'Hundertstel',2:'Tausendstel'};
+  const[int,dec='']=numStr.split(',');
+  let out=`<div class="chip"><b>${int}</b><s>Einer</s></div>`;
+  out+=`<div class="chip comma"><b>,</b><s>&nbsp;</s></div>`;
+  dec.split('').forEach((d,i)=>{out+=`<div class="chip"><b>${d}</b><s>${names[i]||''}</s></div>`;});
+  return `<div class="chips">${out}</div>`;
+}
+
+function taskHTML(arr){
+  return `<div class="task">${arr.map(t=>{
+    if(t==='>'||t==='<'||t==='=') return `<span class="op">${t}</span>`;
+    if(t==='☐') return `<span class="box-slot">&nbsp;&nbsp;</span>`;
+    return `<span>${t}</span>`;
+  }).join('')}</div>`;
+}
+
+function verdict(yes){
+  return `<div class="reveal"><div class="verdict ${yes?'yes':'no'}">
+    <span class="badge ${yes?'yes':'no'}">${yes?ICON.yes:ICON.no}</span>
+    <b>${yes?'JA':'NEIN'}</b></div></div>`;
+}
+
+function footer(extra){
+  const showPrev = cur>0;
+  return `<div class="foot">
+    <div class="counter">Folie ${cur+1} / ${slides.length}</div>
+    <div class="nav">
+      <button class="btn" data-act="prev" ${showPrev?'':'disabled style="opacity:.4"'}>${ICON.prev} Zurück</button>
+      <button class="btn solid" data-act="next">${extra||'Weiter'} ${ICON.next}</button>
+    </div></div>`;
+}
+
+function render(){
+  const s=slides[cur];
+  let html='';
+  let acc = s.fv? accent(s.fv) : (dark()?'#5DCAA5':'#0F6E56');
+
+  if(s.type==='cover'){
+    html=`<div class="card cover" style="--fv:${acc}">
+      <div class="body">
+        <div class="kicker">Dezimalzahlen · Hundertstel & Tausendstel</div>
+        <h1>Aufgaben</h1>
+        <p class="note" style="text-align:left;margin-top:20px">Steuerung: <span class="kbd"><b>→</b></span> oder <span class="kbd"><b>Leertaste</b></span> deckt die Lösung auf und blättert weiter · <span class="kbd"><b>←</b></span> zurück · <span class="kbd"><b>F</b></span> Vollbild · <span class="kbd"><b>D</b></span> Hell/Dunkel · ein Klick auf die Folie blättert ebenfalls.</p>
+      </div>
+      ${footer('Start')}
+    </div>`;
+  }
+
+  else if(s.type==='task'){
+    const it=s.it;
+    let main='';
+    if(it.read){
+      main=`${chips(it.read.z)}<div class="read">gelesen als <q>„${it.read.g}"</q></div>`;
+    } else if(it.prompt){
+      main=`<div class="task" style="font-size:clamp(26px,4.4vw,52px);line-height:1.2">${it.prompt}</div>`;
+    } else {
+      let sup='';
+      if(it.sup&&it.sup.k==='dq') sup=`<div class="support">${decimalQuad(it.sup.a)}${decimalQuad(it.sup.b)}</div>`;
+      else if(it.sup&&it.sup.k==='pv') sup=`<div class="support">${placeValue(it.sup.a,it.sup.b)}</div>`;
+      main=`${taskHTML(it.task)}${sup}`;
+    }
+    let ans;
+    if(!revealed) ans=`<div class="veil">${ICON.eye} Lösung aufdecken</div>`;
+    else if(typeof it.yes==='boolean') ans=verdict(it.yes);
+    else ans=`<div class="reveal"><div class="sol">${it.sol}</div></div>`;
+    html=`<div class="card" style="--fv:${acc}">
+      <div class="head"><div class="eyebrow"><span class="tag">Aufgabe ${s.num}</span></div></div>
+      <div class="body">${main}<div class="answer">${ans}</div></div>
+      ${footer(revealed?'Weiter':'Aufdecken')}
+    </div>`;
+  }
+
+  else if(s.type==='end'){
+    html=`<div class="card" style="--fv:${dark()?'#5DCAA5':'#0F6E56'}">
+      <div class="body center">
+        <h1 style="font-size:clamp(32px,5vw,58px)">Ende</h1>
+      </div>
+      ${footer('Zurück zum Anfang')}
+    </div>`;
+  }
+
+  stage.innerHTML=html;
+}
+
+function hasAnswer(){return slides[cur].type==='task';}
+
+function advance(){
+  if(hasAnswer() && !revealed){revealed=true;render();return;}
+  if(cur<slides.length-1){cur++;revealed=false;render();}
+  else {cur=0;revealed=false;render();}
+}
+function back(){if(cur>0){cur--;revealed=false;render();}}
+
+stage.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');
+  if(b){e.stopPropagation();if(b.disabled)return;b.dataset.act==='next'?advance():back();return;}
+  advance();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();advance();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();back();}
+  else if(e.key==='f'||e.key==='F'){toggleFull();}
+  else if(e.key==='d'||e.key==='D'){toggleTheme();}
+});
+
+function toggleTheme(){
+  document.documentElement.setAttribute('data-theme', dark()?'light':'dark');
+  render();
+}
+function toggleFull(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+document.getElementById('theme').addEventListener('click',e=>{e.stopPropagation();toggleTheme();});
+document.getElementById('full').addEventListener('click',e=>{e.stopPropagation();toggleFull();});
+
+if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)
+  document.documentElement.setAttribute('data-theme','dark');
+
+render();
+</script>
+</body>
+</html>
