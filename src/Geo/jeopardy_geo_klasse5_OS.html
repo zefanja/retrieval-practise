@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geo-Jeopardy · Klasse 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --navy:#0a1628;
+  --cell:#1a3a6b;
+  --cell-h:#1d4595;
+  --cell-u:#0c1622;
+  --cat:#0e50b0;
+  --cat-b:#4a9fe8;
+  --gold:#ffd700;
+  --modal:#071426;
+}
+
+html,body{height:100%;background:var(--navy);color:#fff;font-family:'Oswald',sans-serif;overflow:hidden}
+
+#app{height:100vh;display:flex;flex-direction:column;padding:10px;gap:8px}
+
+/* ── SCOREBAR ── */
+#bar{display:flex;gap:10px;height:72px;flex-shrink:0}
+
+.sc{flex:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sl{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px}
+.sp{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold);line-height:1}
+
+#mid{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:160px;gap:4px}
+#gtitle{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);letter-spacing:5px;text-shadow:0 0 18px rgba(255,215,0,.35)}
+#gsub{font-size:11px;color:#90caf9;letter-spacing:2px;text-transform:uppercase}
+#rbtn{margin-top:3px;background:transparent;border:1px solid #2a5298;color:#90caf9;padding:3px 12px;font-size:11px;border-radius:4px;cursor:pointer;font-family:'Oswald',sans-serif;letter-spacing:1px;transition:background .15s,color .15s}
+#rbtn:hover{background:#1a3a6b;color:var(--gold)}
+#ubtn{background:transparent;border:1px solid #2a5298;color:#90caf9;padding:3px 12px;font-size:11px;border-radius:4px;font-family:'Oswald',sans-serif;letter-spacing:1px;transition:background .15s,color .15s,opacity .2s;opacity:.32;cursor:default}
+#ubtn:not([disabled]){opacity:1;cursor:pointer}
+#ubtn:not([disabled]):hover{background:#1a3a6b;color:var(--gold)}
+
+/* ── BOARD ── */
+#board{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  grid-template-rows:56px repeat(10,1fr);
+  gap:5px;
+  flex:1;
+  min-height:0;
+}
+
+.ch{
+  background:var(--cat);border:2px solid var(--cat-b);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:'Oswald',sans-serif;font-weight:600;font-size:11.5px;
+  letter-spacing:.5px;text-transform:uppercase;line-height:1.3;
+  padding:3px 5px;color:#fff;
+}
+
+.qc{
+  background:var(--cell);border:2px solid #2a5298;color:var(--gold);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,2vw,22px);
+  letter-spacing:1px;cursor:pointer;user-select:none;
+  transition:background .12s,transform .1s,box-shadow .12s;
+}
+.qc:hover{background:var(--cell-h);transform:scale(1.04);box-shadow:0 0 14px rgba(255,215,0,.22)}
+.qc.used{background:var(--cell-u);border-color:#111d2a;color:transparent;cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important}
+
+/* ── OVERLAY ── */
+#ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;
+  z-index:200;padding:20px;backdrop-filter:blur(3px);
+}
+#ov.on{display:flex;animation:fIn .2s ease}
+@keyframes fIn{from{opacity:0}to{opacity:1}}
+
+#modal{
+  background:var(--modal);border:2px solid var(--gold);border-radius:14px;
+  padding:32px 36px;max-width:720px;width:100%;text-align:center;
+  animation:sUp .22s ease;
+  box-shadow:0 0 50px rgba(255,215,0,.12);
+}
+@keyframes sUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.pts{
+  background:var(--gold);color:#071426;font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:3px;border-radius:6px;
+  display:inline-block;padding:4px 22px;margin-bottom:10px;
+}
+.mcat{font-size:11px;color:#90caf9;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px}
+.mqt{font-family:'Playfair Display',serif;font-size:22px;line-height:1.65;color:#fff;margin-bottom:26px}
+.mans{
+  background:#071f10;border:1px solid #43a047;border-radius:8px;
+  padding:16px 20px;margin-bottom:24px;
+  font-family:'Playfair Display',serif;font-size:17px;
+  color:#a5d6a7;line-height:1.6;text-align:left;
+  animation:fIn .3s ease;
+}
+.brow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.jb{
+  border:none;cursor:pointer;font-family:'Oswald',sans-serif;
+  font-weight:500;font-size:15px;letter-spacing:1px;
+  border-radius:8px;padding:12px 22px;
+  transition:opacity .12s,transform .1s;
+}
+.jb:hover{opacity:.84;transform:scale(1.04)}
+.jb:active{transform:scale(.97)}
+.jbr{background:#1055b5;color:#fff}
+.jb1{background:#8b1010;color:#fff}
+.jb2{background:#125212;color:#fff}
+.jbs{background:#253545;color:#90a4ae}
+
+/* score flash */
+@keyframes ptFlash{0%,100%{transform:scale(1)}40%{transform:scale(1.25)}}
+.flash .sp{animation:ptFlash .4s ease}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="bar">
+    <div class="sc" id="c1" style="background:#3a0000;border:2px solid #e53935">
+      <span class="sl" style="color:#ffcdd2">Team 1</span>
+      <span class="sp" id="s1">0</span>
+    </div>
+    <div id="mid">
+      <div id="gtitle">Geo-Jeopardy</div>
+      <div id="gsub">Geographie · Klasse 5</div>
+      <button id="rbtn">↺ Neu starten</button>
+      <button id="ubtn" disabled>↩ Rückgängig</button>
+    </div>
+    <div class="sc" id="c2" style="background:#002500;border:2px solid #43a047">
+      <span class="sl" style="color:#c8e6c9">Team 2</span>
+      <span class="sp" id="s2">0</span>
+    </div>
+  </div>
+  <div id="board"></div>
+</div>
+
+<div id="ov"><div id="modal"></div></div>
+
+<script>
+const C=[
+  {n:"Unsere Erde",q:[
+    [100,"Wie viele Kontinente hat die Erde?","7 Kontinente: Europa, Asien, Afrika, Nordamerika, Südamerika, Australien/Ozeanien, Antarktika"],
+    [200,"Wie heißt der Breitenkreis, der die Erde in Nord- und Südhälfte teilt?","Äquator"],
+    [300,"Wie nennt man die tägliche Drehung der Erde um ihre eigene Achse?","Rotation"],
+    [400,"Welche Abbildungsart stellt die Kugelgestalt der Erde am genauesten dar?","Der Globus"],
+    [500,"Wie heißen die vier großen Ozeane der Erde?","Pazifischer, Atlantischer, Indischer und Arktischer Ozean (Nördliches Eismeer)"],
+    [600,"Was bewirkt die Schrägstellung der Erdachse?","Die Entstehung der Jahreszeiten – unterschiedlicher Einfallswinkel der Sonnenstrahlen im Jahresverlauf"],
+    [700,"Was ist der Unterschied zwischen Rotation und Revolution der Erde?","Rotation = Drehung um die eigene Achse (Ursache von Tag und Nacht, Dauer: 24 Stunden); Revolution = Umlauf um die Sonne (Ursache der Jahreszeiten, Dauer: 365 Tage)"],
+    [800,"Warum verzerrt eine Weltkarte die Erde immer?","Die Kugeloberfläche lässt sich nicht verzerrungsfrei auf eine ebene Fläche übertragen; je nach Kartennetzentwurf werden Flächen, Winkel oder Entfernungen verfälscht"],
+    [900,"In welcher Beleuchtungszone liegt Deutschland und was bedeutet das für Klima und Sonneneinstrahlung?","Gemäßigte Zone; mittlerer Einfallswinkel der Sonnenstrahlen → gemäßigtes Klima mit vier Jahreszeiten, weder extreme Hitze noch Dauerfrost"],
+    [1000,"Erkläre den Zusammenhang zwischen dem Einfallswinkel der Sonnenstrahlen und der Temperatur in verschiedenen Zonen der Erde.","Kleiner Einfallswinkel (Pole): Energie verteilt sich auf größere Fläche → kalt. Großer Winkel (Äquator): Energie trifft konzentriert auf kleine Fläche → warm. Zudem ist der Lichtweg durch die Atmosphäre am Pol länger → mehr Streuung und Absorption"],
+  ]},
+  {n:"Orientierung in Deutschland",q:[
+    [100,"Was ist die Hauptstadt Deutschlands?","Berlin"],
+    [200,"Nenne die drei Großlandschaften Deutschlands von Nord nach Süd.","Norddeutsches Tiefland, Mittelgebirge, Alpen (Hochgebirge)"],
+    [300,"Wie viele Bundesländer hat Deutschland?","16 Bundesländer"],
+    [400,"Nenne zwei Nachbarländer Deutschlands.","z. B. Frankreich, Polen, Tschechien, Österreich, Schweiz, Niederlande, Belgien, Luxemburg, Dänemark"],
+    [500,"Nenne drei wichtige Flüsse Deutschlands.","z. B. Rhein, Elbe, Donau, Oder, Weser, Main"],
+    [600,"Was ist Bevölkerungsdichte und wie wird sie berechnet?","Einwohner je Quadratkilometer (Einwohner ÷ Fläche in km²); zeigt, wie dicht besiedelt ein Gebiet ist"],
+    [700,"Welche Hauptstadtfunktionen hat Berlin?","Regierungssitz (Bundestag, Bundesrat, Kanzleramt), diplomatisches Zentrum, kulturelle und wirtschaftliche Bedeutung"],
+    [800,"Erkläre den Unterschied zwischen einer physischen und einer politisch-administrativen Karte.","Physisch: zeigt Naturraum (Relief, Gewässer, Höhen); politisch-administrativ: zeigt Staatsgrenzen, Bundesländer, Städte – keine Geländedarstellung"],
+    [900,"Welche typischen Merkmale unterscheiden Tiefland, Mittelgebirge und Alpen?","Tiefland: unter 200 m, flach, Ackerbau; Mittelgebirge: 200–1500 m, bewaldet, Täler; Alpen: über 2000 m, Gletscher, steile Hänge, Schneebedeckung"],
+    [1000,"Wie nutzt man eine Maßstabsleiste, um reale Entfernungen aus einer Karte zu berechnen? Erkläre das Vorgehen Schritt für Schritt.","1) Strecke auf der Karte mit dem Lineal messen (in cm). 2) Maßstabsverhältnis ablesen (z. B. 1 : 1 000 000). 3) Kartenstrecke × Maßstabszahl = Realstrecke (in cm, dann umrechnen in km)"],
+  ]},
+  {n:"Nord- und Ostseeküste",q:[
+    [100,"Was ist der Unterschied zwischen Nord- und Ostsee?","Nordsee = Randmeer des Atlantischen Ozeans (offen); Ostsee = Binnenmeer (fast vollständig von Land umschlossen)"],
+    [200,"Was sind Gezeiten?","Regelmäßiger Wechsel von Ebbe (Niedrigwasser) und Flut (Hochwasser), verursacht durch die Anziehungskraft des Mondes"],
+    [300,"Was ist das Wattenmeer?","Flacher Küstenbereich, der bei Ebbe trockenfällt; bildet einen einzigartigen Lebensraum aus Schlick, Sand und Wasser"],
+    [400,"Was ist der Unterschied zwischen einer Flachküste und einer Steilküste?","Flachküste: sanft zum Meer abfallendes Gelände (z. B. Nordseeküste, Wattküste); Steilküste: abrupt abfallende Kliffhänge, die durch Wellenerosion entstehen (z. B. Rügen)"],
+    [500,"Was ist eine Trichtermündung (Ästuar) und wie entsteht sie?","Trichterförmige Flussmündung, die durch die Gezeitenströmung ausgeweitet wird; Beispiele: Elbe, Weser, Ems"],
+    [600,"Nenne drei Maßnahmen zum Küstenschutz.","Deiche (Erdwälle gegen Sturmfluten), Buhnen (quer zur Küste gebaute Dämme gegen Erosion), Strandhafer / Dünenbepflanzung (Sandbindung)"],
+    [700,"Warum ist die Ostsee viel salzärmer als die Nordsee?","Die Ostsee ist ein Binnenmeer mit wenig Wasseraustausch; viele Flüsse münden ein (viel Süßwasserzufluss); geringe Verdunstung durch kühleres Klima"],
+    [800,"Erkläre, wie ein Deich den Küstenschutz gewährleistet.","Ein Deich ist ein aufgeschütteter Erdwall mit flach geneigter Seeflanke (bricht Wellenenergie) und Binnenböschung; er schützt das Hinterland vor Sturmfluten"],
+    [900,"Was ist eine Buhne und wie schützt sie die Küste vor Erosion?","Eine Buhne ist ein quer zur Küste ins Meer gebautes Bauwerk; sie verringert die Strömungsgeschwindigkeit, so dass Sand und Sediment abgelagert werden – der Strand baut sich auf"],
+    [1000,"Welche wirtschaftlichen Nutzungen und Schutzinteressen stehen an der Nordseeküste in Konflikt? Nenne je zwei Argumente pro Seite.","Nutzung: Tourismus (Einnahmen, Arbeitsplätze), Fischerei, Schifffahrt, Offshore-Windkraft. Schutz: Wattenmeer-Nationalpark (einzigartiger Lebensraum, Brutstätte für Zugvögel). Konflikt: Freizeit und Wirtschaft belasten sensibles Ökosystem"],
+  ]},
+  {n:"Tiefland",q:[
+    [100,"Wie heißt die bekannteste Heidelandschaft im Norddeutschen Tiefland?","Lüneburger Heide"],
+    [200,"Was wird im Tagebau des Tieflandes hauptsächlich abgebaut?","Braunkohle (Lignit)"],
+    [300,"Nenne die zwei Hauptformen der Landwirtschaft im Tiefland.","Ackerbau und Viehwirtschaft"],
+    [400,"Was ist ein Kanal und wozu dient er?","Ein Kanal ist eine künstlich angelegte Wasserstraße; er dient der Schifffahrt und dem Gütertransport zwischen Flüssen oder Häfen"],
+    [500,"Was ist Braunkohle und wie entsteht sie?","Fossiler Brennstoff; entsteht über Millionen Jahre aus abgestorbenen Pflanzen unter Druck und Wärme (weniger verdichtet als Steinkohle)"],
+    [600,"Was ist Rekultivierung und warum ist sie nach dem Braunkohleabbau nötig?","Wiederherstellung des Geländes nach dem Bergbau: Auffüllung der Tagebaugrube, Bepflanzung, Anlage von Seen – da riesige Flächen zerstört wurden"],
+    [700,"Erkläre den Widerspruch zwischen Ökonomie und Ökologie beim Braunkohleabbau.","Ökonomisch: Energie- und Arbeitsplatzversorgung, günstige Stromproduktion. Ökologisch: Landschaftszerstörung, CO₂-Ausstoß, Grundwasserabsenkung, Umsiedlung von Dörfern"],
+    [800,"Was ist die Leipziger Tieflandsbucht und womit hängt ihre landwirtschaftliche Bedeutung zusammen?","Flache Region um Leipzig; fruchtbare Lössböden durch eiszeitliche Ablagerungen → intensive Landwirtschaft (Ackerbau, Zuckerrüben, Getreide)"],
+    [900,"Welche Bedeutung hat das Gewässernetz aus Flüssen, Seen und Kanälen für das Tiefland?","Transport und Schifffahrt, Trinkwasserversorgung, Bewässerung in der Landwirtschaft, Ökosystem (Lebensraum), Freizeit und Tourismus"],
+    [1000,"Warum ist Nachhaltigkeit beim Braunkohleabbau eine besondere Herausforderung? Was müsste eine nachhaltige Lösung leisten?","Langfristige Schäden (Landschaft, Klima) überwiegen kurzfristige Gewinne; nachhaltige Lösung: Umstieg auf erneuerbare Energien, Rekultivierung, Beschäftigungsalternativen für Bergleute, Schutz von Trinkwasser und Landschaft"],
+  ]},
+  {n:"Ballungsgebiete",q:[
+    [100,"Wie heißt das bekannteste Industriegebiet Deutschlands?","Ruhrgebiet"],
+    [200,"Nenne die drei Wirtschaftssektoren.","Primärer Sektor (Landwirtschaft, Bergbau), sekundärer Sektor (Industrie, verarbeitendes Gewerbe), tertiärer Sektor (Dienstleistungen)"],
+    [300,"Was ist ein Ballungsgebiet?","Dicht besiedelter Raum, in dem viele Städte, Industriebetriebe und Verkehrswege zusammenliegen"],
+    [400,"Welche zwei Rohstoffe waren die Grundlage des Ruhrgebiets?","Steinkohle und Eisenerz (Grundlage für Stahlindustrie)"],
+    [500,"Was ist Strukturwandel?","Wirtschaftliche Umstrukturierung: Rückgang alter Industriezweige (z. B. Kohle, Stahl) und Aufkommen neuer Branchen (z. B. Dienstleistungen, Technologie)"],
+    [600,"Welche neuen Wirtschaftszweige (Wachstumsindustrien) haben im Ruhrgebiet die Schwerindustrie ersetzt?","Technologie- und Informationsbranche, Kreativwirtschaft, Bildung (Universitäten), Gesundheitswesen, Dienstleistungen"],
+    [700,"Was sind Standortfaktoren? Nenne zwei Beispiele und erkläre, warum sie wichtig sind.","Bedingungen, die Unternehmen bei der Wahl ihres Betriebsstandorts beeinflussen; z. B. Verkehrsanbindung (schneller Transport), qualifizierte Arbeitskräfte (Produktivität)"],
+    [800,"Welche Funktionen hat eine Großstadt wie Hamburg oder München für die Umgebung?","Wirtschaftszentrum (Arbeitsplätze, Handel), Verkehrsknotenpunkt (Hafen, Flughafen), Bildungs- und Kulturzentrum, Einkaufsmetropole"],
+    [900,"Welche Umweltprobleme entstehen in Ballungsgebieten und wie hängen sie mit der Dichte von Menschen und Betrieben zusammen?","Luftverschmutzung (Abgase, Industrie), Lärm, Flächenverbrauch (Versiegelung), Verkehrsstaus, Wärmeinseln – all das entsteht durch die hohe Konzentration von Aktivitäten"],
+    [1000,"Erkläre, warum der Strukturwandel im Ruhrgebiet für die Bevölkerung besonders schwierig war und ist.","Massenentlassungen in Kohle und Stahl → hohe Arbeitslosigkeit; Umschulung dauert lange; soziale Probleme (Armut, Abwanderung); alte Industriebrachen schwer zu sanieren; städtische Identität verknüpft mit alter Industrie"],
+  ]},
+  {n:"Mittelgebirgsland",q:[
+    [100,"Nenne ein deutsches Mittelgebirge.","z. B. Erzgebirge, Schwarzwald, Harz, Thüringer Wald, Rhön, Eifel, Sauerland"],
+    [200,"Nenne zwei Gesteinsarten, die im Mittelgebirge vorkommen.","Granit, Gneis, Basalt, Sandstein (zwei davon nennen)"],
+    [300,"Was ist Talbildung und welche Kraft ist hauptsächlich dafür verantwortlich?","Eintiefung in die Landschaft durch fließendes Wasser (Erosion des Flusses in den Untergrund)"],
+    [400,"Was ist der Unterschied zwischen Granit und Sandstein?","Granit = magmatisches Tiefengestein (aus Magma erstarrt); Sandstein = Sedimentgestein (aus verfestigten Sandkörnern)"],
+    [500,"Was bedeuten die Begriffe Luv und Lee?","Luv = dem Wind zugewandte Seite des Gebirges (viel Niederschlag); Lee = dem Wind abgewandte Seite (trocken, da Wolken auf der Luvseite abregnen → Regenschatten)"],
+    [600,"Was ist eine Talsperre und welche Funktionen erfüllt sie?","Staudamm, der ein Tal absperrt und ein Stausee entsteht; dient der Trinkwasserversorgung, Stromerzeugung (Wasserkraft) und dem Hochwasserschutz"],
+    [700,"Was ist Waldsterben und welche Ursachen haben Schäden am Wald?","Schädigung und Absterben von Wäldern; Ursachen: saurer Regen (Schwefeldioxid, Stickoxide aus Industrie und Verkehr), Ozon, Trockenheit durch Klimawandel, Schädlingsbefall"],
+    [800,"Warum sind Mittelgebirge wichtige Wasserspeicher für das Tiefland?","Stauniederschläge auf den Höhen; langsame Versickerung des Regenwassers; Talsperren speichern das Wasser; Flüsse führen Wasser ins Tiefland – besonders in Trockenzeiten wichtig"],
+    [900,"Erkläre den Zusammenhang: geologischer Bau – Relief – fließendes Wasser.","Hartes Gestein (z. B. Granit) verwittert langsam → hohes Relief, steile Hänge. Weiches Gestein (z. B. Sandstein) verwittert leichter → flacheres Relief. Steiles Gelände = schnell fließendes Wasser mit hoher Erosionskraft → tiefe Täler entstehen"],
+    [1000,"Welche Nutzungsinteressen stehen im Mittelgebirge in Konflikt? Nenne mindestens drei und erkläre je einen Konflikt.","Forstwirtschaft (Holzeinschlag) vs. Naturschutz (Urwald, Biodiversität); Tourismus (Skigebiete, Wanderwege) vs. Ökologie (Lärm, Bodenverdichtung); Talsperrenbau (Wasser, Strom) vs. Naturraum (Überflutung von Tälern); Landwirtschaft (Weideflächen) vs. Walderhalt"],
+  ]},
+];
+
+const used=new Set(), sc=[0,0];
+let act=null, showA=false, lastClosed=null;
+
+function build(){
+  const el=document.getElementById('board');
+  let h='';
+  for(let ci=0;ci<6;ci++) h+=`<div class="ch">${C[ci].n}</div>`;
+  for(let qi=0;qi<10;qi++) for(let ci=0;ci<6;ci++){
+    const k=`${ci}-${qi}`, u=used.has(k);
+    h+=`<div class="qc${u?' used':''}"${!u?` data-c="${ci}" data-i="${qi}"`:''}>${u?'':C[ci].q[qi][0]}</div>`;
+  }
+  el.innerHTML=h;
+  el.querySelectorAll('.qc:not(.used)').forEach(e=>{
+    e.addEventListener('click',()=>open(+e.dataset.c,+e.dataset.i));
+  });
+}
+
+function open(c,i){
+  act={c,i}; showA=false;
+  render();
+  document.getElementById('ov').classList.add('on');
+}
+
+function render(){
+  const q=C[act.c].q[act.i];
+  document.getElementById('modal').innerHTML=`
+    <div class="pts">${q[0]} Punkte</div>
+    <div class="mcat">${C[act.c].n}</div>
+    <div class="mqt">${q[1]}</div>
+    ${showA?`<div class="mans">${q[2]}</div>`:''}
+    <div class="brow">
+      ${!showA
+        ?`<button class="jb jbr" id="bR">&#128269; Lösung anzeigen</button>`
+        :`<button class="jb jb1" id="bT1">&#10003; Team 1 &nbsp;+${q[0]}</button>
+          <button class="jb jb2" id="bT2">&#10003; Team 2 &nbsp;+${q[0]}</button>`
+      }
+      <button class="jb jbs" id="bSk">&#10007; Kein Punkt</button>
+    </div>`;
+  if(!showA){
+    document.getElementById('bR').onclick=()=>{showA=true;render();};
+  } else {
+    document.getElementById('bT1').onclick=()=>award(0);
+    document.getElementById('bT2').onclick=()=>award(1);
+  }
+  document.getElementById('bSk').onclick=close;
+}
+
+function award(t){
+  const pts=C[act.c].q[act.i][0];
+  sc[t]+=pts;
+  const card=document.getElementById(t?'c2':'c1');
+  document.getElementById(t?'s2':'s1').textContent=sc[t];
+  card.classList.remove('flash');
+  void card.offsetWidth;
+  card.classList.add('flash');
+  lastClosed={c:act.c,i:act.i,team:t,pts};
+  finClose();
+}
+
+function close(){
+  if(act) lastClosed={c:act.c,i:act.i,team:null,pts:0};
+  finClose();
+}
+
+function finClose(){
+  if(act){used.add(`${act.c}-${act.i}`);act=null;}
+  document.getElementById('ov').classList.remove('on');
+  syncUndo();
+  build();
+}
+
+function undo(){
+  if(!lastClosed) return;
+  const {c,i,team,pts}=lastClosed;
+  used.delete(`${c}-${i}`);
+  if(team!==null){
+    sc[team]-=pts;
+    document.getElementById(team?'s2':'s1').textContent=sc[team];
+  }
+  lastClosed=null;
+  syncUndo();
+  build();
+  open(c,i);
+}
+
+function syncUndo(){
+  const btn=document.getElementById('ubtn');
+  if(!btn) return;
+  btn.disabled=!lastClosed;
+}
+
+document.getElementById('ov').addEventListener('click',function(e){
+  if(e.target===this) close();
+});
+
+document.getElementById('rbtn').addEventListener('click',()=>{
+  used.clear(); sc[0]=sc[1]=0;
+  document.getElementById('s1').textContent='0';
+  document.getElementById('s2').textContent='0';
+  act=null; showA=false; lastClosed=null;
+  document.getElementById('ov').classList.remove('on');
+  syncUndo();
+  build();
+});
+
+document.getElementById('ubtn').addEventListener('click', undo);
+
+build();
+syncUndo();
+</script>
+</body>
+</html>
