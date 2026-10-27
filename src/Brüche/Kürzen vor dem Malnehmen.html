@@ -1,0 +1,477 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Kürzen vor dem Malnehmen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+/* Layout: Vollbild-Bühne für ein Element; ruhige Bänder oben (Phase) und unten (Lehrersatz + Steuerung). */
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --ink:#191c24; --muted:#5a6273; --line:#d7dbe3;
+  --accent:#3a4cab; --yes:#17745a; --no:#b04429; --mark:#f0c04a; --mark-ink:#3b2d05;
+  --f-display:"Fraunces",Georgia,serif;
+  --f-body:"Source Sans 3",system-ui,sans-serif;
+  --f-math:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#13151b; --surface:#1c2029; --ink:#e7e9ef; --muted:#98a0b2; --line:#2d3340;
+  --accent:#93a3f5; --yes:#5ccda1; --no:#ef8e71; --mark:#e0ad3c; --mark-ink:#241a02;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#13151b; --surface:#1c2029; --ink:#e7e9ef; --muted:#98a0b2; --line:#2d3340;
+  --accent:#93a3f5; --yes:#5ccda1; --no:#ef8e71; --mark:#e0ad3c; --mark-ink:#241a02;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column}
+
+/* ---- Fortschrittsleiste ---- */
+.bar{display:flex;gap:2px;height:4px;flex:none}
+.bar span{flex:1;background:var(--line)}
+.bar span.done{background:var(--accent);opacity:.45}
+.bar span.now{background:var(--accent)}
+
+/* ---- Kopf ---- */
+header{
+  flex:none;display:flex;align-items:center;gap:12px;
+  padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  border-bottom:1px solid var(--line);background:var(--surface);
+}
+.pos{font-family:var(--f-display);font-weight:700;font-size:1.05rem;color:var(--accent);
+  border:1.5px solid var(--accent);border-radius:999px;width:2rem;height:2rem;flex:none;
+  display:grid;place-items:center;line-height:1}
+.hd{min-width:0;flex:1}
+.hd h1{font-family:var(--f-display);font-weight:500;font-size:1rem;margin:0;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd p{margin:1px 0 0;font-size:.74rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tools{display:flex;align-items:center;gap:6px;flex:none}
+.clock{font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted);min-width:4.2rem;text-align:right}
+button.icon{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;
+  font:inherit;font-size:.8rem;padding:5px 9px;cursor:pointer}
+button.icon:hover{color:var(--ink);border-color:var(--accent)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- Bühne ---- */
+main{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;
+  gap:18px;padding-block:22px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));}
+.stage{max-width:62rem;margin:0 auto;width:100%;text-align:center}
+.tag{display:inline-block;font-family:var(--f-body);font-weight:600;font-size:.72rem;
+  letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:5px;margin-bottom:14px}
+.tag.n{background:color-mix(in srgb,var(--no) 16%,transparent);color:var(--no)}
+.tag.p{background:color-mix(in srgb,var(--yes) 16%,transparent);color:var(--yes)}
+.tag.t{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+
+.math{font-family:var(--f-math);font-size:clamp(2.1rem,7.5vw,4.2rem);line-height:1.15;
+  font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;justify-content:center;
+  align-items:center;gap:.22em}
+.math.sm{font-size:clamp(1.5rem,5vw,2.4rem)}
+.frac{display:inline-flex;flex-direction:column;align-items:center}
+.frac .num{padding:0 .28em}
+.frac .den{padding:.04em .28em 0;border-top:.07em solid currentColor;margin-top:.06em}
+.op{padding:0 .06em}
+.hl{background:var(--mark);color:var(--mark-ink);border-radius:.14em;padding:0 .12em;font-weight:600}
+.arrow{color:var(--muted);font-size:clamp(1.1rem,3vw,1.5rem);margin:.25em 0}
+
+.reveal{margin-top:20px}
+.verdict{display:inline-block;font-family:var(--f-display);font-weight:700;
+  font-size:clamp(1.6rem,5vw,2.6rem);padding:.08em .5em;border-radius:10px;line-height:1.25}
+.verdict.ja{background:color-mix(in srgb,var(--yes) 15%,transparent);color:var(--yes)}
+.verdict.nein{background:color-mix(in srgb,var(--no) 15%,transparent);color:var(--no)}
+.why{margin:12px auto 0;max-width:34rem;color:var(--muted);font-size:1rem;line-height:1.5}
+.ghost{opacity:0;pointer-events:none}
+
+.note{max-width:40rem;margin:0 auto;color:var(--muted);font-size:.86rem;line-height:1.55;
+  border-left:2px solid var(--line);padding-left:12px;text-align:left}
+
+/* Titel- und Textkarten */
+.card{max-width:42rem;margin:0 auto;text-align:left;background:var(--surface);
+  border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h2{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,4.5vw,2.1rem);
+  margin:0 0 6px;text-wrap:balance;line-height:1.15}
+.card p.lead{margin:0 0 16px;color:var(--muted);line-height:1.55}
+ol.steps,ul.plain{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:9px;line-height:1.5}
+ol.steps li::marker{color:var(--accent);font-weight:600}
+.kbd{font-family:var(--f-math);background:var(--bg);border:1px solid var(--line);
+  border-radius:5px;padding:1px 7px;font-size:.88em}
+
+/* Übungsliste */
+.tasks{display:grid;gap:10px;max-width:46rem;margin:0 auto;text-align:left}
+.task{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:10px 14px}
+.task b{font-family:var(--f-display);color:var(--accent);flex:none;width:1.2rem}
+.task .q{flex:1;min-width:0;font-family:var(--f-math);font-size:1.15rem;
+  display:flex;flex-wrap:wrap;align-items:center;gap:.22em}
+.task .a{font-family:var(--f-math);font-size:1.15rem;color:var(--yes);flex:none;
+  display:flex;align-items:center;gap:.22em}
+
+/* ---- Fuß ---- */
+footer{flex:none;border-top:1px solid var(--line);background:var(--surface);
+  padding-block:12px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));}
+.foot{max-width:62rem;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.say{flex:1;min-width:0}
+.say em{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);font-style:normal;margin-bottom:2px}
+.say q{font-family:var(--f-display);font-weight:500;font-size:clamp(.98rem,2.5vw,1.2rem);
+  quotes:"„" "“";line-height:1.3;display:block}
+.nav{display:flex;gap:8px;flex:none}
+button.step{font:inherit;font-weight:600;border-radius:9px;padding:9px 16px;cursor:pointer;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button.step.go{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.step:disabled{opacity:.4;cursor:default}
+
+/* ---- Ablauf-Schublade ---- */
+.drawer{position:fixed;inset:0;background:rgba(10,12,18,.45);display:grid;place-items:center;
+  z-index:20;padding:16px}
+.drawer .inner{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  max-width:34rem;width:100%;max-height:82%;overflow-y:auto;padding:18px}
+.drawer h3{font-family:var(--f-display);margin:0 0 12px;font-size:1.15rem}
+.jump{display:grid;gap:4px}
+.jump button{display:flex;gap:10px;align-items:baseline;text-align:left;width:100%;
+  font:inherit;background:none;border:0;border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--ink)}
+.jump button:hover{background:var(--bg)}
+.jump button.cur{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.jump b{color:var(--accent);flex:none;width:1.1rem}
+.jump span{flex:1;min-width:0}
+.jump i{color:var(--muted);font-style:normal;font-size:.82rem;font-variant-numeric:tabular-nums}
+
+@media (max-width:560px){
+  .foot{gap:10px}
+  .nav{width:100%}
+  .nav button{flex:1}
+  .note{font-size:.8rem}
+}
+@media (prefers-reduced-motion:no-preference){
+  .stage{animation:in .18s ease-out}
+  @keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<div id="app">
+  <div class="bar" id="bar"></div>
+  <header>
+    <div class="pos" id="pos">—</div>
+    <div class="hd"><h1 id="secTitle">Kürzen vor dem Malnehmen</h1><p id="secMeta">Stunde 2</p></div>
+    <div class="tools">
+      <span class="clock" id="clock">00:00</span>
+      <button class="icon" id="menuBtn" aria-label="Ablauf öffnen">Ablauf</button>
+      <button class="icon" id="fsBtn" aria-label="Vollbild">⛶</button>
+    </div>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <div class="foot">
+      <div class="say" id="say"></div>
+      <div class="nav">
+        <button class="step" id="prev">Zurück</button>
+        <button class="step go" id="next">Weiter</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ---------- Mini-Notation: "4/9 · 15/8", "(4 · 15)/(9 · 8)", Markierung mit *4* ---------- */
+function splitTop(s,seps){
+  let d=0,cur="",out=[];
+  for(const ch of s){
+    if(ch==="(")d++; else if(ch===")")d--;
+    if(d===0&&seps.includes(ch)){out.push(cur);out.push(ch);cur="";}
+    else cur+=ch;
+  }
+  out.push(cur);
+  return out.map(x=>x.trim()).filter(x=>x!=="");
+}
+function unwrap(s){
+  s=s.trim();
+  if(s[0]!=="(")return s;
+  let d=0;
+  for(let i=0;i<s.length;i++){
+    if(s[i]==="(")d++; else if(s[i]===")"){d--; if(d===0)return i===s.length-1?s.slice(1,-1).trim():s;}
+  }
+  return s;
+}
+function marks(t){
+  return t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))
+          .replace(/\*([^*]+)\*/g,'<span class="hl">$1</span>');
+}
+function factor(f){
+  const parts=splitTop(f,"/");
+  if(parts.length===3&&parts[1]==="/")
+    return '<span class="frac"><span class="num">'+marks(unwrap(parts[0]))+
+           '</span><span class="den">'+marks(unwrap(parts[2]))+'</span></span>';
+  return '<span>'+marks(unwrap(f))+'</span>';
+}
+function expr(s){
+  return splitTop(s,"·+−=").map(t=>
+    "·+−=".includes(t)&&t.length===1?'<span class="op">'+t+"</span>":factor(t)
+  ).join("");
+}
+function mathBlock(lines,cls){
+  const arr=Array.isArray(lines)?lines:[lines];
+  return arr.map((l,i)=>
+    (i?'<div class="arrow">↓</div>':"")+'<div class="math'+(cls?" "+cls:"")+'">'+expr(l)+"</div>"
+  ).join("");
+}
+
+/* ---------- Stundeninhalt ---------- */
+const T={
+  mal:"Darf ich hier Zähler mal Zähler, Nenner mal Nenner rechnen?",
+  paar:"Darf ich diese beiden Zahlen kürzen?",
+  kuerze:"Kürze das markierte Paar.",
+  finde:"Finde ein Paar, das du kürzen darfst."
+};
+const SECTIONS=[
+  {pos:"",title:"Kürzen vor dem Malnehmen",meta:"Brüche malnehmen",min:0,say:"",
+   items:[{card:"intro"}]},
+
+  {pos:1,title:"Zum Aufwärmen",meta:"Mini-Whiteboards",min:5,
+   say:"Berechne und kürze vollständig.",
+   items:[
+     {show:"5 · 3/10",rev:["3/2"]},
+     {show:"4/9 · 5/9",rev:["20/81"]}
+   ]},
+
+  {pos:1,title:"Alles auf einen Bruchstrich",meta:"Mini-Whiteboards",min:0,
+   say:"Schreibe als einen Bruch. Nicht ausrechnen.",
+   items:[
+     {show:"4/9 · 15/8",rev:["(4 · 15)/(9 · 8)"]},
+     {show:"7 · 2/5",rev:["(7 · 2)/(1 · 5)"],why:"Die 1 wird mitgeschrieben."}
+   ]},
+
+  {pos:2,title:"Mal oder Plus?",meta:"Daumen hoch oder runter",min:6,
+   say:T.mal,
+   items:[
+     {show:"3/7 + 2/7",v:"Nein"},
+     {show:"3/7 · 2/7",v:"Ja"},
+     {show:"5 · 4/9",v:"Ja"},
+     {show:"11/6 · 3/10",v:"Ja"},
+     {show:"11/6 − 3/10",v:"Nein"}
+   ]},
+
+  {pos:2,title:"Mal oder Plus?",meta:"Mini-Whiteboards · J oder N",min:0,
+   say:T.mal,
+   items:[
+     {tag:"1",show:"7 · 2/3",v:"Ja"},
+     {tag:"2",show:"4/5 − 1/5",v:"Nein"},
+     {tag:"3",show:"2/9 + 5/6",v:"Nein"},
+     {tag:"4",show:"4/5 · 1/5",v:"Ja"},
+     {tag:"5",show:"8/3 · 3/8",v:"Ja"},
+     {tag:"6",show:"5/12 + 5/12",v:"Nein"}
+   ]},
+
+  {pos:3,title:"Darf ich kürzen?",meta:"Daumen hoch oder runter",min:11,
+   say:T.paar,
+   items:[
+     {show:"(*6* · *9*)/(5 · 7)",v:"Nein",why:"Beide Zahlen stehen oben."},
+     {show:"(*6* · 5)/(*9* · 7)",v:"Ja",why:"Eine oben, eine unten — gemeinsamer Teiler 3."},
+     {show:"(*4* · 5)/(*6* · 11)",v:"Ja",why:"Gemeinsamer Teiler 2."},
+     {show:"(*14* · 3)/(5 · *21*)",v:"Ja",why:"Gemeinsamer Teiler 7."},
+     {show:"(*14* · 3)/(5 · *15*)",v:"Nein",why:"Kein gemeinsamer Teiler."},
+     {show:"(*14* · *21*)/(5 · 3)",v:"Nein",why:"Beide Zahlen stehen oben."}
+   ]},
+
+  {pos:3,title:"Darf ich kürzen?",meta:"Mini-Whiteboards · J oder N",min:0,
+   say:T.paar,
+   items:[
+     {tag:"1",show:"(*10* · 3)/(7 · *4*)",v:"Ja"},
+     {tag:"2",show:"(*8* · *6*)/(5 · 7)",v:"Nein",why:"Beide oben."},
+     {tag:"3",show:"(*9* · 5)/(2 · *15*)",v:"Ja"},
+     {tag:"4",show:"(*12* · 5)/(7 · *18*)",v:"Ja"},
+     {tag:"5",show:"(*3* · 7)/(8 · *10*)",v:"Nein",why:"Kein gemeinsamer Teiler."},
+     {tag:"6",show:"(*7* · 3)/(*7* · 5)",v:"Ja"}
+   ]},
+
+  {pos:3,title:"Finde selbst ein Paar",meta:"Mini-Whiteboards",min:0,
+   say:T.finde,
+   items:[
+     {show:"(4 · 15)/(9 · 8)",rev:["(*4* · 15)/(9 · *8*)"],why:"Oder 9 und 15. Beide Wege sind richtig."},
+     {show:"(6 · 10 · 7)/(5 · 21 · 4)",rev:["(6 · *10* · 7)/(*5* · 21 · 4)"],why:"Es gibt mehrere Paare, zum Beispiel auch 7 und 21."},
+     {show:"(5 · 7)/(3 · 4)",v:"Nein",why:"Hier gibt es kein Paar. Auch das ist eine Antwort."},
+     {ask:"Darf ich 4 und 8 kürzen?",show:"*4*/9 + 15/*8*",v:"Nein",why:"Es ist eine Plus-Aufgabe."}
+   ]},
+
+  {pos:4,title:"So wird gekürzt",meta:"Schaut genau hin",min:6,
+   say:"",
+   items:[
+     {show:"(*4* · 15)/(9 · *8*)",rev:["(1 · 15)/(9 · 2)"]},
+     {show:"(4 · *15*)/(*9* · 8)",rev:["(4 · 5)/(3 · 8)"]},
+     {show:"(*14* · 3)/(5 · *21*)",rev:["(2 · 3)/(5 · 3)"]}
+   ]},
+
+  {pos:4,title:"Kürze das Paar",meta:"Mini-Whiteboards · neue Zeile schreiben",min:0,
+   say:T.kuerze,
+   items:[
+     {tag:"1",show:"(*10* · 3)/(7 · *4*)",rev:["(5 · 3)/(7 · 2)"]},
+     {tag:"2",show:"(*12* · 5)/(7 · *18*)",rev:["(2 · 5)/(7 · 3)"]},
+     {tag:"3",show:"(*9* · 8)/(5 · *27*)",rev:["(1 · 8)/(5 · 3)"]},
+     {tag:"4",show:"(*16* · 3)/(5 · *24*)",rev:["(2 · 3)/(5 · 3)"]},
+     {tag:"5",show:"(*15* · 4)/(*3* · 7)",rev:["(5 · 4)/(1 · 7)"],why:"Die 1 steht hier unten."},
+     {tag:"6",show:"(*7* · 3)/(*7* · 5)",rev:["(1 · 3)/(1 · 5)"]}
+   ]},
+
+  {pos:5,title:"Alles zusammen",meta:"Mini-Whiteboards",min:8,
+   say:"Kürze alle Paare, dann rechne aus.",
+   items:[
+     {show:"(10 · 7)/(3 · 4)",rev:["(5 · 7)/(3 · 2)"]},
+     {show:"(4 · 15)/(9 · 8)",rev:["(1 · 15)/(9 · 2)","(1 · 5)/(3 · 2)"]},
+     {show:"(4 · 15)/(9 · 8)",rev:["(1 · 5)/(3 · 2)","5/6"]},
+     {show:"4/9 · 15/8",rev:["(4 · 15)/(9 · 8)","(1 · 5)/(3 · 2)","5/6"]}
+   ]},
+
+  {pos:6,title:"Die ganze Aufgabe",meta:"Mini-Whiteboards",min:4,
+   say:"Berechne und kürze vollständig.",
+   items:[
+     {card:"weg"},
+     {show:"6/35 · 14/9",rev:["(6 · 14)/(35 · 9)","(2 · 2)/(5 · 3)","4/15"]},
+     {show:"5 · 7/10",rev:["(5 · 7)/(1 · 10)","(1 · 7)/(1 · 2)","7/2"]}
+   ]},
+
+  {pos:7,title:"Übung",meta:"Einzelarbeit",min:5,
+   say:"Berechne und kürze vollständig.",
+   items:[{card:"tasks"}]}
+];
+
+const TASKS=[
+  ["3/10 · 5/9","1/6"],
+  ["7/12 · 8/21","2/9"],
+  ["6 · 5/18","5/3"],
+  ["5/7 · 3/11","15/77"],
+  ["9/14 · 7/9","1/2"],
+  ["15/16 · 8/25","3/10"],
+  ["4/15 · 5/6 · 9/8","1/4"],
+  ["5/12 + 3/8","19/24"],
+  ["5/12 · 3/8","5/32"]
+];
+
+/* ---------- Flache Folienliste ---------- */
+const SLIDES=[];
+SECTIONS.forEach((s,si)=>s.items.forEach((it,ii)=>SLIDES.push({s:si,i:ii,n:s.items.length,it})));
+
+let cur=0, shown=false, t0=null, tick=null;
+const $=id=>document.getElementById(id);
+
+function cards(key){
+  if(key==="intro")return `<div class="card">
+    <h2>Kürzen vor dem Malnehmen</h2>
+    <p class="lead">Heute nehmen wir Brüche mal — und kürzen schon vorher, damit die Zahlen klein bleiben.</p>
+    </div>`;
+  if(key==="weg")return `<div class="card">
+    <h2>So gehst du vor</h2>
+    <ol class="steps">
+      <li>Ist es eine Mal-Aufgabe?</li>
+      <li>Schreibe alles auf einen Bruchstrich.</li>
+      <li>Kürze jedes Paar, das du findest.</li>
+      <li>Rechne aus.</li>
+    </ol></div>`;
+  if(key==="tasks")return '<div class="tasks">'+TASKS.map((t,i)=>{
+    const nr=i===7?"8a":i===8?"8b":String(i+1);
+    return `<div class="task"><b>${nr}</b><div class="q">${expr(t[0])}</div>
+      <div class="a${shown?"":" ghost"}">${expr(t[1])}</div></div>`;
+  }).join("")+"</div>"+
+  (shown?"":'<p class="why">Antworten erscheinen mit <span class="kbd">→</span>.</p>');
+  return "";
+}
+
+function render(){
+  const sl=SLIDES[cur], sec=SECTIONS[sl.s], it=sl.it;
+
+  $("bar").innerHTML=SLIDES.map((x,i)=>
+    `<span class="${i<cur?"done":i===cur?"now":""}"></span>`).join("");
+  $("pos").textContent=sec.pos||"·";
+  $("secTitle").textContent=sec.title;
+  $("secMeta").textContent=sec.meta+(sec.items.length>1?" · "+(sl.i+1)+"/"+sl.n:"");
+  const say=it.ask||sec.say;
+  $("say").innerHTML=say?"<q>"+say+"</q>":"";
+
+  let html="";
+  if(it.card){
+    html='<div class="stage">'+cards(it.card)+"</div>";
+  }else{
+    html='<div class="stage">'+
+      (it.tag?`<div class="tag t">Aufgabe ${it.tag}</div>`:"")+
+      mathBlock(it.show)+
+      '<div class="reveal'+(shown?"":" ghost")+'">'+
+        (it.v?`<div class="verdict ${it.v==="Ja"?"ja":"nein"}">${it.v}</div>`:"")+
+        (it.rev?mathBlock(it.rev,"sm"):"")+
+        (it.why?`<p class="why">${it.why}</p>`:"")+
+      "</div></div>";
+  }
+  $("main").innerHTML=html;
+
+  $("prev").disabled=cur===0&&!shown;
+  const last=cur===SLIDES.length-1&&shown;
+  $("next").textContent=last?"Fertig":shown?"Weiter":"Antwort";
+  $("next").disabled=last;
+  if(!it.card&&!it.v&&!it.rev&&!it.why)$("next").textContent="Weiter";
+}
+
+function hasReveal(){
+  const it=SLIDES[cur].it;
+  if(it.card)return it.card==="tasks";
+  return !!(it.v||it.rev||it.why);
+}
+function fwd(){
+  if(!shown&&hasReveal()){shown=true;render();return;}
+  if(cur<SLIDES.length-1){cur++;shown=false;render();}
+}
+function back(){
+  if(shown){shown=false;render();return;}
+  if(cur>0){cur--;shown=hasReveal();render();}
+}
+
+/* Uhr */
+function startClock(){
+  if(tick)return;
+  t0=Date.now();
+  tick=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);
+    $("clock").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+  },1000);
+}
+
+/* Ablauf-Schublade */
+function openDrawer(){
+  const d=document.createElement("div");
+  d.className="drawer";
+  let acc=0;const starts=SECTIONS.map(s=>{const a=acc;acc+=s.items.length;return a;});
+  d.innerHTML='<div class="inner"><h3>Ablauf</h3><div class="jump">'+
+    SECTIONS.map((s,i)=>`<button data-go="${starts[i]}" class="${SLIDES[cur].s===i?"cur":""}">
+      <b>${s.pos||"·"}</b><span>${s.title}</span><i>${s.min?s.min+" min":""}</i></button>`).join("")+
+    "</div></div>";
+  d.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-go]");
+    if(b){cur=+b.dataset.go;shown=false;render();}
+    d.remove();
+  });
+  document.body.appendChild(d);
+}
+
+$("next").addEventListener("click",()=>{startClock();fwd();});
+$("prev").addEventListener("click",back);
+$("menuBtn").addEventListener("click",openDrawer);
+$("fsBtn").addEventListener("click",()=>{
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  else (document.documentElement.requestFullscreen?.() ?? Promise.reject()).catch(()=>{});
+});
+addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();startClock();fwd();}
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();back();}
+  else if(e.key==="a"||e.key==="A"){const d=document.querySelector(".drawer");d?d.remove():openDrawer();}
+  else if(e.key==="f"||e.key==="F"){$("fsBtn").click();}
+  else if(e.key==="Escape"){document.querySelector(".drawer")?.remove();}
+});
+
+render();
+</script>
+
+</body></html>
