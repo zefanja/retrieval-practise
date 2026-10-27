@@ -9,7 +9,7 @@
   --paper:#f8fafc; --grid:#e3eaf2; --surface:#ffffff; --line:#cdd7e3;
   --ink:#172636; --muted:#5a6b7d;
   --blue:#1d5fc4; --blue-tint:rgba(29,95,196,.22); --blue-soft:#e6efff;
-  --red:#cf3426; --red-soft:#fdeceA;
+  --red:#cf3426; --red-soft:#fdecea;
   --violet:#6a3db3; --violet-fill:rgba(106,61,179,.62);
   --display:"Bricolage Grotesque",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,sans-serif;
@@ -39,17 +39,19 @@ body{
   padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:20px 32px;
 }
-.app{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:350px minmax(0,1fr);gap:24px;align-items:start}
+.app{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;align-items:start}
 @media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}
 header{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
 h1{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3vw,2.2rem);margin:0;letter-spacing:-.01em}
-.equation{font-family:var(--display);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.6rem);display:flex;align-items:center;gap:.35em;flex-wrap:wrap}
+.equation{font-family:var(--display);font-weight:600;font-size:clamp(1.5rem,3.2vw,2.5rem);display:flex;align-items:center;gap:.35em;flex-wrap:wrap}
 .equation .op{color:var(--muted)}
 
 /* Brüche */
 .frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1;font-variant-numeric:tabular-nums}
 .frac .n,.frac .d{padding:0 .12em}
 .frac .bar{align-self:stretch;height:.08em;min-height:2px;background:currentColor;margin:.08em 0;border-radius:2px}
+.mixed{display:inline-flex;align-items:center;gap:.08em;font-variant-numeric:tabular-nums}
+.mixed .frac{font-size:.62em}
 .c-blue{color:var(--blue)} .c-red{color:var(--red)} .c-violet{color:var(--violet)}
 .q{color:var(--muted)}
 
@@ -58,20 +60,24 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3vw,2.2rem)
 .card.a{border-top:5px solid var(--blue)} .card.b{border-top:5px solid var(--red)}
 .card h2{margin:0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .editor{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
-.bigfrac{font-family:var(--display);font-weight:800;font-size:3.4rem;min-width:2.2ch;text-align:center}
-.steppers{display:flex;flex-direction:column;gap:10px}
+.show{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:5.2rem}
+.bigfrac{font-family:var(--display);font-weight:800;font-size:3.2rem;text-align:center}
+.asmixed{font-family:var(--display);font-weight:600;font-size:1.5rem;color:var(--muted);min-height:1.6em;display:flex;align-items:center;gap:.25em}
+.steppers{display:flex;flex-direction:column;gap:8px}
 .stepper{display:flex;align-items:center;gap:8px}
 .stepper span{font-size:.85rem;color:var(--muted);width:4.5em}
 button{font-family:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
-.pm{width:52px;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-size:1.6rem;font-weight:700;line-height:1}
+.pm{width:52px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-size:1.6rem;font-weight:700;line-height:1}
 .pm:active{transform:scale(.95)}
 .pm:disabled{opacity:.35;cursor:default}
+.chiplabel{font-size:.78rem;color:var(--muted);margin:0 0 -6px}
 .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .chip{border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:6px 0;font-size:1rem;font-weight:700;display:flex;justify-content:center;min-height:52px;align-items:center}
 .chip .frac{font-size:1.05rem}
-.card.a .chip.on{background:var(--blue);border-color:var(--blue);color:var(--surface)}
-.card.b .chip.on{background:var(--red);border-color:var(--red);color:var(--surface)}
+.chip.big{border-style:dashed}
+.card.a .chip.on{background:var(--blue);border-color:var(--blue);border-style:solid;color:var(--surface)}
+.card.b .chip.on{background:var(--red);border-color:var(--red);border-style:solid;color:var(--surface)}
 
 .tools{display:flex;gap:8px;flex-wrap:wrap}
 .tool{flex:1 1 auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-weight:700;min-height:46px}
@@ -97,14 +103,16 @@ svg{display:block;width:100%;height:auto;max-height:68vh}
 .s-blue{fill:var(--blue-tint)}
 .s-hatch-line{stroke:var(--red);stroke-width:3}
 .s-overlap{fill:var(--violet-fill)}
-.s-la{stroke:var(--blue);stroke-width:2.5}
-.s-lb{stroke:var(--red);stroke-width:2.5}
-.s-ext{stroke:var(--muted);stroke-width:2;stroke-dasharray:7 6}
+.s-la{stroke:var(--blue);stroke-width:2}
+.s-lb{stroke:var(--red);stroke-width:2}
+.s-ext{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:6 5}
 .s-border{fill:none;stroke:var(--ink);stroke-width:4}
 .s-brace-a{stroke:var(--blue);stroke-width:3;fill:none}
 .s-brace-b{stroke:var(--red);stroke-width:3;fill:none}
 .t-a{fill:var(--blue)} .t-b{fill:var(--red)} .t-c{fill:#fff}
 .t-m{fill:var(--muted)}
+.t-one{fill:var(--muted);opacity:.7}
+.faded{opacity:.3}
 svg text{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums}
 .in{animation:fade .5s ease both}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -134,6 +142,7 @@ svg text{font-family:var(--display);font-weight:800;font-variant-numeric:tabular
     <div class="svgwrap"><svg id="model" viewBox="-110 -96 760 556" role="img" aria-label="Rechteckmodell"></svg></div>
     <p class="explain" id="explain"></p>
     <div class="legend">
+      <span><i style="background:var(--surface);border:3px solid var(--ink)"></i>1 Ganzes</span>
       <span><i style="background:var(--blue-tint);border:2px solid var(--blue)"></i>1. Bruch</span>
       <span><i style="background:repeating-linear-gradient(45deg,var(--red) 0 3px,transparent 3px 8px);border:2px solid var(--red)"></i>davon (2. Bruch)</span>
       <span><i style="background:var(--violet-fill)"></i>Ergebnis</span>
@@ -142,31 +151,44 @@ svg text{font-family:var(--display);font-weight:800;font-variant-numeric:tabular
 </div>
 
 <script>
-const MAXD = 12;
+const MAXD = 12, MAXW = 3;               // Nenner bis 12, Wert bis 3 Ganze
 const PRESETS = [[1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],[1,6],[5,6],[3,8]];
+const PRESETS_BIG = [[5,4],[4,3],[3,2],[5,3],[2,1],[5,2]];
 const state = { a:{n:3,d:4}, b:{n:2,d:3}, step:1, nums:false };
 let lastStep = 0;
 
 const $ = id => document.getElementById(id);
 const gcd = (x,y) => y ? gcd(y, x%y) : x;
 const fr = (n,d,cls='') => `<span class="frac ${cls}"><span class="n">${n}</span><span class="bar"></span><span class="d">${d}</span></span>`;
+function mixed(n,d,cls=''){
+  const w=Math.floor(n/d), r=n%d;
+  if(r===0) return `<span class="${cls}">${w}</span>`;
+  if(w===0) return fr(n,d,cls);
+  return `<span class="mixed ${cls}">${w}${fr(r,d)}</span>`;
+}
+function ganzeText(n,d){ const w=n/d; return Number.isInteger(w) ? `${w} ${w===1?'Ganzes':'Ganze'}` : null; }
 
 function cardHTML(key){
   const f = state[key], blue = key==='a';
   const title = blue ? '1. Bruch · blau' : '2. Bruch · rot („davon“)';
+  const w = Math.floor(f.n/f.d);
+  const btn = (p,v,label,dis) => `<button class="pm" data-k="${key}" data-p="${p}" data-v="${v}" aria-label="${label}" ${dis?'disabled':''}>${v<0?'−':'+'}</button>`;
+  const chip = ([n,d],big) => `<button class="chip ${big?'big':''} ${f.n===n&&f.d===d?'on':''}" data-k="${key}" data-set="${n}/${d}" aria-label="${n} ${d}tel">${fr(n,d)}</button>`;
   return `<h2>${title}</h2>
   <div class="editor">
-    <div class="bigfrac ${blue?'c-blue':'c-red'}">${fr(f.n,f.d)}</div>
+    <div class="show">
+      <div class="bigfrac ${blue?'c-blue':'c-red'}">${fr(f.n,f.d)}</div>
+      <div class="asmixed">${f.n>=f.d ? '= '+mixed(f.n,f.d) : ''}</div>
+    </div>
     <div class="steppers">
-      <div class="stepper"><span>Zähler</span>
-        <button class="pm" data-k="${key}" data-p="n" data-v="-1" aria-label="Zähler verkleinern" ${f.n<=1?'disabled':''}>−</button>
-        <button class="pm" data-k="${key}" data-p="n" data-v="1" aria-label="Zähler vergrößern" ${f.n>=f.d?'disabled':''}>+</button></div>
-      <div class="stepper"><span>Nenner</span>
-        <button class="pm" data-k="${key}" data-p="d" data-v="-1" aria-label="Nenner verkleinern" ${f.d<=1?'disabled':''}>−</button>
-        <button class="pm" data-k="${key}" data-p="d" data-v="1" aria-label="Nenner vergrößern" ${f.d>=MAXD?'disabled':''}>+</button></div>
+      <div class="stepper"><span>Ganze</span>${btn('w',-1,'Ein Ganzes weniger',f.n-f.d<1)}${btn('w',1,'Ein Ganzes mehr',f.n+f.d>MAXW*f.d)}</div>
+      <div class="stepper"><span>Zähler</span>${btn('n',-1,'Zähler verkleinern',f.n<=1)}${btn('n',1,'Zähler vergrößern',f.n>=MAXW*f.d)}</div>
+      <div class="stepper"><span>Nenner</span>${btn('d',-1,'Nenner verkleinern',f.d<=1)}${btn('d',1,'Nenner vergrößern',f.d>=MAXD)}</div>
     </div>
   </div>
-  <div class="chips">${PRESETS.map(([n,d])=>`<button class="chip ${f.n===n&&f.d===d?'on':''}" data-k="${key}" data-set="${n}/${d}" aria-label="${n} ${d}tel">${fr(n,d)}</button>`).join('')}</div>`;
+  <div class="chips">${PRESETS.map(p=>chip(p,false)).join('')}</div>
+  <p class="chiplabel">größer als 1</p>
+  <div class="chips">${PRESETS_BIG.map(p=>chip(p,true)).join('')}</div>`;
 }
 
 function stepsHTML(){
@@ -177,7 +199,7 @@ function stepsHTML(){
   }).join('') + `<button class="next" id="next">${state.step<3?'Weiter →':'Neu starten'}</button>`;
 }
 
-function svgFrac(x,y,n,d,cls,size=34){
+function svgFrac(x,y,n,d,cls,size=30){
   const w = Math.max(String(n).length,String(d).length)*size*0.62+10;
   return `<g class="${cls}">
     <text x="${x}" y="${y-6}" text-anchor="middle" font-size="${size}">${n}</text>
@@ -186,39 +208,61 @@ function svgFrac(x,y,n,d,cls,size=34){
 }
 
 function renderSVG(){
-  const W=600,H=400, {a,b,step}=state;
-  const cw=W/a.d, rh=H/b.d, bw=a.n*cw, bh=b.n*rh;
+  const {a,b,step}=state;
+  const A = Math.max(1,Math.ceil(a.n/a.d)), B = Math.max(1,Math.ceil(b.n/b.d));   // Anzahl Ganze in x / y
+  const uw = 600/Math.max(A,B), uh = uw/1.5;                                         // Größe eines Ganzen (3:2)
+  const W = A*uw, H = B*uh;
+  const cw = uw/a.d, rh = uh/b.d, bw = a.n*cw, bh = b.n*rh;
   const anim = s => (s===step && step!==lastStep) ? 'in' : '';
+  const blueH = step>=2 ? H : uh;   // ab Schritt 2 wird der blaue Streifen für jedes weitere Ganze wiederholt
   let o = `<defs><pattern id="hatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
     <line x1="0" y1="0" x2="0" y2="14" class="s-hatch-line"/></pattern></defs>`;
-  o += `<rect x="0" y="0" width="${W}" height="${H}" class="s-whole"/>`;
-  o += `<rect x="0" y="0" width="${bw}" height="${H}" class="s-blue ${anim(1)}"/>`;
+
+  // Ganze (Untergrund)
+  for(let r=0;r<B;r++) for(let c=0;c<A;c++)
+    o += `<rect x="${c*uw}" y="${r*uh}" width="${uw}" height="${uh}" class="s-whole ${step===1&&r>0?'faded':''}"/>`;
+
+  o += `<rect x="0" y="0" width="${bw}" height="${uh}" class="s-blue ${anim(1)}"/>`;
+  if(step>=2 && B>1) o += `<rect x="0" y="${uh}" width="${bw}" height="${H-uh}" class="s-blue ${anim(2)}"/>`;
   if(step>=2) o += `<rect x="0" y="0" width="${bw}" height="${bh}" fill="url(#hatch)" class="${anim(2)}"/>`;
   if(step>=3) o += `<rect x="0" y="0" width="${bw}" height="${bh}" class="s-overlap ${anim(3)}"/>`;
-  for(let i=1;i<a.d;i++) o += `<line x1="${i*cw}" y1="0" x2="${i*cw}" y2="${H}" class="s-la"/>`;
+
+  // senkrechte Teilungslinien (Nenner 1. Bruch) in jedem Ganzen
+  for(let i=1;i<A*a.d;i++){ if(i%a.d===0) continue;
+    o += `<line x1="${i*cw}" y1="0" x2="${i*cw}" y2="${blueH}" class="s-la"/>`;
+    if(step===1 && B>1) o += `<line x1="${i*cw}" y1="${uh}" x2="${i*cw}" y2="${H}" class="s-la faded"/>`;
+  }
+  // waagerechte Teilungslinien (Nenner 2. Bruch)
   if(step>=2){
-    for(let j=1;j<b.d;j++){
+    for(let j=1;j<B*b.d;j++){ if(j%b.d===0) continue;
       o += `<line x1="0" y1="${j*rh}" x2="${bw}" y2="${j*rh}" class="s-lb ${anim(2)}"/>`;
       if(step>=3 && bw<W) o += `<line x1="${bw}" y1="${j*rh}" x2="${W}" y2="${j*rh}" class="s-ext ${anim(3)}"/>`;
     }
   }
   if(step>=3 && state.nums){
-    const fs = Math.min(30, Math.min(cw,rh)*0.42);
-    let k=0;
-    for(let j=0;j<b.n;j++) for(let i=0;i<a.n;i++){ k++;
-      o += `<text x="${i*cw+cw/2}" y="${j*rh+rh/2+fs*0.35}" text-anchor="middle" font-size="${fs}" class="t-c in">${k}</text>`; }
+    const m = Math.min(cw,rh);
+    if(m>=13){
+      const fs = Math.min(30, m*0.45);
+      let k=0;
+      for(let j=0;j<b.n;j++) for(let i=0;i<a.n;i++){ k++;
+        o += `<text x="${i*cw+cw/2}" y="${j*rh+rh/2+fs*0.35}" text-anchor="middle" font-size="${fs}" class="t-c in">${k}</text>`; }
+    }
   }
-  o += `<rect x="0" y="0" width="${W}" height="${H}" class="s-border"/>`;
-  // obere Klammer: 1. Bruch
+  // dicke Ränder je Ganzes + kleine „1“ als Erinnerung
+  for(let r=0;r<B;r++) for(let c=0;c<A;c++){
+    o += `<rect x="${c*uw}" y="${r*uh}" width="${uw}" height="${uh}" class="s-border ${step===1&&r>0?'faded':''}"/>`;
+    if(A*B>1) o += `<text x="${(c+1)*uw-8}" y="${(r+1)*uh-8}" text-anchor="end" font-size="${Math.max(14,uw*0.075)}" class="t-one ${step===1&&r>0?'faded':''}">1</text>`;
+  }
+  // Klammer oben: 1. Bruch
   o += `<path d="M0,-10 v-10 H${bw} v10" class="s-brace-a"/>`;
-  o += svgFrac(bw/2,-62,a.n,a.d,'t-a',30).replace('<g ','<g transform="translate(0,0)" ');
-  // linke Klammer: davon
+  o += svgFrac(bw/2,-62,a.n,a.d,'t-a');
+  // Klammer links: davon
   if(step>=2){
     o += `<path d="M-10,0 h-10 V${bh} h10" class="s-brace-b ${anim(2)}"/>`;
-    o += `<g class="${anim(2)}">${svgFrac(-62,bh/2-14,b.n,b.d,'t-b',30)}</g>`;
+    o += `<g class="${anim(2)}">${svgFrac(-62,bh/2-14,b.n,b.d,'t-b')}</g>`;
   }
-  // untere Beschriftung
-  o += `<text x="${W/2}" y="${H+44}" text-anchor="middle" font-size="22" class="t-m">1 Ganzes${step>=3?` = ${a.d*b.d} gleich große Teile`:''}</text>`;
+  const foot = step>=3 ? `1 Ganzes = ${a.d}·${b.d} = ${a.d*b.d} gleich große Teile` : (A*B>1 ? 'Jedes dick umrandete Rechteck ist 1 Ganzes' : '1 Ganzes');
+  o += `<text x="${W/2}" y="${H+40}" text-anchor="middle" font-size="22" class="t-m">${foot}</text>`;
   $('model').innerHTML = o;
 }
 
@@ -229,18 +273,28 @@ function render(){
   $('steps').innerHTML = stepsHTML();
   $('nums').setAttribute('aria-pressed', state.nums);
 
-  const pn=a.n*b.n, pd=a.d*b.d, g=gcd(pn,pd);
-  let rhs = step>=3 ? fr(`${a.n}·${b.n}`,`${a.d}·${b.d}`) + `<span class="op">=</span>` + fr(pn,pd,'c-violet') +
-    (g>1 ? `<span class="op">=</span>` + fr(pn/g,pd/g,'c-violet') : '') : `<span class="q">?</span>`;
+  const pn=a.n*b.n, pd=a.d*b.d, g=gcd(pn,pd), rn=pn/g, rd=pd/g;
+  let rhs = `<span class="q">?</span>`;
+  if(step>=3){
+    rhs = fr(`${a.n}·${b.n}`,`${a.d}·${b.d}`) + `<span class="op">=</span>` + fr(pn,pd,'c-violet');
+    if(g>1) rhs += `<span class="op">=</span>` + fr(rn,rd,'c-violet');
+    if(rn>=rd) rhs += `<span class="op">=</span>` + mixed(rn,rd,'c-violet');
+  }
   $('eq').innerHTML = fr(a.n,a.d,'c-blue') + `<span class="op">·</span>` + fr(b.n,b.d,'c-red') + `<span class="op">=</span>` + rhs;
 
   const A=fr(a.n,a.d,'c-blue'), B=fr(b.n,b.d,'c-red');
-  const txt = [
-    `Das Rechteck ist das Ganze. Wir teilen es in ${a.d} Streifen und färben ${A} blau.`,
-    `Vom blauen Teil nehmen wir ${B}: Wir teilen ihn in ${b.d} Teile und schraffieren ${b.n} davon rot.`,
-    `Linien verlängern: Das Ganze hat ${a.d}·${b.d} = ${pd} Teile, ${a.n}·${b.n} = ${pn} davon sind violett. ${B} von ${A} = ${fr(pn,pd,'c-violet')}${g>1?' = '+fr(pn/g,pd/g,'c-violet'):''}.`
-  ];
-  $('explain').innerHTML = txt[step-1];
+  const aW = a.n>a.d ? ` Das ist mehr als 1 Ganzes, darum brauchen wir ${Math.ceil(a.n/a.d)} Rechtecke nebeneinander.` : '';
+  const s1 = a.d===1
+    ? `Das Rechteck ist 1 Ganzes. ${A} sind ${a.n} ${a.n===1?'Ganzes':'Ganze'} – wir färben sie blau.`
+    : `Jedes Ganze teilen wir in ${a.d} Streifen. ${A} sind ${a.n} solche Streifen – wir färben sie blau.${aW}`;
+  const s2 = b.n>b.d
+    ? `Vom blauen Teil nehmen wir ${B}: Das ist mehr als einmal der blaue Teil. Darum legen wir den blauen Streifen ${Math.ceil(b.n/b.d)}-mal untereinander, teilen jedes Mal in ${b.d} Teile und schraffieren ${b.n} davon rot.`
+    : (b.n===b.d
+      ? `Vom blauen Teil nehmen wir ${B}, also den ganzen blauen Teil. Wir schraffieren alles Blaue rot.`
+      : `Vom blauen Teil nehmen wir ${B}: Wir teilen ihn in ${b.d} Teile und schraffieren ${b.n} davon rot.`);
+  let res = fr(pn,pd,'c-violet') + (g>1?' = '+fr(rn,rd,'c-violet'):'') + (rn>=rd?' = '+mixed(rn,rd,'c-violet'):'');
+  const s3 = `Linien verlängern: 1 Ganzes hat ${a.d}·${b.d} = ${pd} Teile. Violett sind ${a.n}·${b.n} = ${pn} Teile${pn>pd?', also mehr als 1 Ganzes':''}. ${B} von ${A} = ${res}.`;
+  $('explain').innerHTML = [s1,s2,s3][step-1];
   renderSVG();
   lastStep = step;
 }
@@ -248,9 +302,10 @@ function render(){
 document.addEventListener('click', e=>{
   const t = e.target.closest('button'); if(!t) return;
   if(t.dataset.p){
-    const f = state[t.dataset.k], v=+t.dataset.v;
-    if(t.dataset.p==='n') f.n = Math.min(f.d, Math.max(1, f.n+v));
-    else { f.d = Math.min(MAXD, Math.max(1, f.d+v)); f.n = Math.min(f.n, f.d); }
+    const f = state[t.dataset.k], v=+t.dataset.v, p=t.dataset.p;
+    if(p==='n') f.n = Math.min(MAXW*f.d, Math.max(1, f.n+v));
+    else if(p==='w') { const nn=f.n+v*f.d; if(nn>=1 && nn<=MAXW*f.d) f.n=nn; }
+    else { const w=f.n/f.d; f.d = Math.min(MAXD, Math.max(1, f.d+v)); f.n = Math.max(1, Math.min(MAXW*f.d, f.n)); }
     render(); return;
   }
   if(t.dataset.set){ const [n,d]=t.dataset.set.split('/').map(Number); state[t.dataset.k]={n,d}; render(); return; }
@@ -258,13 +313,14 @@ document.addEventListener('click', e=>{
   if(t.id==='next'){ state.step = state.step<3 ? state.step+1 : 1; render(); return; }
   if(t.id==='swap'){ [state.a,state.b]=[state.b,state.a]; state.step=1; lastStep=0; render(); return; }
   if(t.id==='rand'){
-    const pick=()=>{const d=2+Math.floor(Math.random()*7);return {n:1+Math.floor(Math.random()*(d-1)),d};};
-    state.a=pick(); state.b=pick(); state.step=1; lastStep=0; render(); return;
+    const big = Math.random()<0.4;
+    const pick=(allowBig)=>{const d=2+Math.floor(Math.random()*5);const max=allowBig?2*d+Math.floor(d/2):d-1;return {n:1+Math.floor(Math.random()*max),d};};
+    state.a=pick(big); state.b=pick(big && Math.random()<0.5); state.step=1; lastStep=0; render(); return;
   }
   if(t.id==='nums'){ state.nums=!state.nums; render(); return; }
 });
 document.addEventListener('keydown', e=>{
-  if(e.key==='ArrowRight'||e.key===' '&&e.target===document.body){ e.preventDefault(); state.step=Math.min(3,state.step+1); render(); }
+  if(e.key==='ArrowRight'||(e.key===' '&&e.target===document.body)){ e.preventDefault(); state.step=Math.min(3,state.step+1); render(); }
   if(e.key==='ArrowLeft'){ state.step=Math.max(1,state.step-1); render(); }
 });
 render();
