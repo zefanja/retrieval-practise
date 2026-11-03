@@ -1,0 +1,303 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Wie oft passt's?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: Tafelbild – Aufgabe oben groß, Balkenmodell als Bühne, drei aufdeckbare Rechenwege darunter */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18232f; --muted:#5b6876; --line:#d5dce3;
+  --dividend:#2c5f8a; --dividend-soft:#c9dbea;
+  --piece-a:#d9822b; --piece-b:#b8661a; --piece-soft:#f6dcc0;
+  --grid:#8a97a5;
+  --font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12181f; --surface:#1b232c; --ink:#e7edf3; --muted:#9aa7b4; --line:#2f3a46;
+  --dividend:#7fb2de; --dividend-soft:#26425c;
+  --piece-a:#f0a35a; --piece-b:#d4823a; --piece-soft:#4a3320;
+  --grid:#6c7a88; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#12181f; --surface:#1b232c; --ink:#e7edf3; --muted:#9aa7b4; --line:#2f3a46;
+  --dividend:#7fb2de; --dividend-soft:#26425c;
+  --piece-a:#f0a35a; --piece-b:#d4823a; --piece-soft:#4a3320;
+  --grid:#6c7a88; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,3.2vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 small{display:block;font-family:var(--font-body);font-weight:400;font-size:.95rem;color:var(--muted);letter-spacing:0}
+.presets{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+label.lbl{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+select,button,input{font:inherit;color:inherit}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+
+.task{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px 28px}
+.edit{display:flex;align-items:center;gap:10px}
+.edit .tag{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.edit.dvd .tag{color:var(--dividend)} .edit.dvs .tag{color:var(--piece-b)}
+.fracedit{display:grid;grid-template-columns:auto auto auto;align-items:center;gap:4px 6px}
+.fracedit .bar{grid-column:1 / -1;height:3px;background:currentColor;border-radius:2px}
+.fracedit input{width:3.2ch;text-align:center;font-family:var(--font-display);font-weight:800;font-size:2.4rem;border:0;background:transparent;padding:0;-moz-appearance:textfield}
+.fracedit input::-webkit-inner-spin-button,.fracedit input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.fracedit input:focus-visible{outline:2px solid var(--dividend);outline-offset:2px;border-radius:6px}
+.step{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-weight:700;font-size:1.1rem;line-height:1}
+.step:hover{border-color:var(--muted)} .step:focus-visible{outline:2px solid var(--dividend);outline-offset:2px}
+.dvd .fracedit{color:var(--dividend)} .dvs .fracedit{color:var(--piece-b)}
+.op{font-family:var(--font-display);font-weight:800;font-size:2.6rem;color:var(--muted)}
+.question{font-size:1.15rem;color:var(--muted);flex-basis:100%;text-align:center}
+.question b{color:var(--ink)}
+
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 16px 10px;display:flex;flex-direction:column;gap:10px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.btns,.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:.92rem}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--piece-a);border-color:var(--piece-a);color:#1d1206}
+.btn:focus-visible,.chip:focus-within{outline:2px solid var(--dividend);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.9rem;cursor:pointer;user-select:none}
+.chip input{accent-color:var(--dividend);margin:0}
+.svgbox{overflow-x:auto}
+svg{display:block;width:100%;min-width:560px;height:auto}
+.note{font-size:.9rem;color:var(--muted);min-height:1.3em}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.88rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.way{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.way h2{font-family:var(--font-display);font-weight:600;font-size:1.05rem;margin:0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.reveal{font:inherit;font-size:.82rem;font-weight:700;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 10px;cursor:pointer}
+.reveal:focus-visible{outline:2px solid var(--dividend);outline-offset:2px}
+.body{font-size:1.25rem;overflow-x:auto}
+.hiddenbox{border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--muted);font-size:.95rem}
+.big{font-family:var(--font-display);font-weight:800;font-size:2rem}
+.lines{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px 8px;font-variant-numeric:tabular-nums}
+.lines .eq{color:var(--muted);text-align:center}
+.lines .hint{font-size:.8rem;color:var(--muted);padding-left:10px}
+
+.f{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 .12em;font-variant-numeric:tabular-nums}
+.f>span:first-child{border-bottom:2px solid currentColor;padding:0 .2em}
+.f>span{padding:0 .2em}
+.c-dvd{color:var(--dividend);font-weight:700} .c-dvs{color:var(--piece-b);font-weight:700}
+.sym{margin:0 .25em;color:var(--muted)}
+footer{font-size:.82rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Wie oft passt's?<small>Division von Brüchen am Balkenmodell</small></h1>
+    <div class="presets">
+      <label class="lbl" for="preset">Beispiel</label>
+      <select id="preset"></select>
+    </div>
+  </header>
+
+  <section class="task" aria-label="Aufgabe">
+    <div class="edit dvd">
+      <span class="tag">Dividend</span>
+      <div class="fracedit">
+        <button class="step" data-k="a" data-s="-1" aria-label="Zähler Dividend kleiner">−</button>
+        <input id="a" type="number" min="1" max="30" aria-label="Zähler Dividend">
+        <button class="step" data-k="a" data-s="1" aria-label="Zähler Dividend größer">+</button>
+        <span class="bar"></span>
+        <button class="step" data-k="b" data-s="-1" aria-label="Nenner Dividend kleiner">−</button>
+        <input id="b" type="number" min="1" max="12" aria-label="Nenner Dividend">
+        <button class="step" data-k="b" data-s="1" aria-label="Nenner Dividend größer">+</button>
+      </div>
+    </div>
+    <span class="op" aria-hidden="true">:</span>
+    <div class="edit dvs">
+      <div class="fracedit">
+        <button class="step" data-k="c" data-s="-1" aria-label="Zähler Divisor kleiner">−</button>
+        <input id="c" type="number" min="1" max="30" aria-label="Zähler Divisor">
+        <button class="step" data-k="c" data-s="1" aria-label="Zähler Divisor größer">+</button>
+        <span class="bar"></span>
+        <button class="step" data-k="d" data-s="-1" aria-label="Nenner Divisor kleiner">−</button>
+        <input id="d" type="number" min="1" max="12" aria-label="Nenner Divisor">
+        <button class="step" data-k="d" data-s="1" aria-label="Nenner Divisor größer">+</button>
+      </div>
+      <span class="tag">Divisor</span>
+    </div>
+    <p class="question" id="question"></p>
+  </section>
+
+  <section class="stage" aria-label="Balkenmodell">
+    <div class="controls">
+      <div class="btns">
+        <button class="btn" id="clear">Leeren</button>
+        <button class="btn primary" id="next">+1 Stück</button>
+        <button class="btn" id="play">Abmessen ▶</button>
+        <button class="btn" id="all">Alle Stücke</button>
+      </div>
+      <div class="toggles">
+        <label class="chip"><input type="checkbox" id="tGrid"> Gemeinsame Unterteilung</label>
+        <label class="chip"><input type="checkbox" id="tNum" checked> Stücke nummerieren</label>
+      </div>
+    </div>
+    <div class="svgbox"><svg id="svg" role="img" aria-label="Balkenmodell der Division"></svg></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--dividend)"></i>Dividend</span>
+      <span><i class="sw" style="background:var(--piece-a)"></i>ganze Stücke des Divisors</span>
+      <span><i class="sw" style="background:var(--piece-soft);outline:2px dashed var(--piece-b);outline-offset:-2px"></i>angefangenes Stück</span>
+    </div>
+    <p class="note" id="note"></p>
+  </section>
+
+  <section class="ways">
+    <article class="way">
+      <h2>Ergebnis am Balken <button class="reveal" data-w="r1">verdecken</button></h2>
+      <div class="body" id="r1"></div>
+    </article>
+    <article class="way">
+      <h2>Gemeinsamer Nenner <button class="reveal" data-w="r2">aufdecken</button></h2>
+      <div class="body" id="r2"></div>
+    </article>
+    <article class="way">
+      <h2>Mit dem Kehrwert <button class="reveal" data-w="r3">aufdecken</button></h2>
+      <div class="body" id="r3"></div>
+    </article>
+  </section>
+  <footer>Tipp für den I do: Ergebnis verdecken, „+1 Stück“ klicken und still mitzählen lassen. Erst danach aufdecken.</footer>
+</div>
+
+<script>
+(function(){
+const PRESETS=[
+  ["2 : 1/3 (I do)",2,1,1,3],["2 : 1/5 (I do)",2,1,1,5],["3 : 1/4 (I do)",3,1,1,4],
+  ["4 : 1/2 (Test)",4,1,1,2],["1 : 1/6 (Test)",1,1,1,6],["5 : 1/3 (Test)",5,1,1,3],
+  ["3/4 : 1/8 (E1)",3,4,1,8],["2 : 2/3 (E2)",2,1,2,3],["1 : 2/3 (E3)",1,1,2,3],
+  ["3/4 : 5/7 (E4, Startaufgabe)",3,4,5,7],["8/5 : 1/6 (Atom 2)",8,5,1,6],
+  ["Saftkrug: 3/4 l : 1/8 l",3,4,1,8],["2/5 : 3/7 (Übung 1)",2,5,3,7],["5 : 2/3 (Übung 6)",5,1,2,3]
+];
+const MAXU=10;
+const st={a:3,b:4,c:5,d:7,placed:Infinity,timer:null,show:{r1:true,r2:false,r3:false}};
+const $=id=>document.getElementById(id);
+const gcd=(x,y)=>{x=Math.abs(x);y=Math.abs(y);while(y){[x,y]=[y,x%y]}return x||1};
+const lcm=(x,y)=>x/gcd(x,y)*y;
+const F=(n,d,cls)=>`<span class="f ${cls||''}"><span>${n}</span><span>${d}</span></span>`;
+function simp(n,d){const g=gcd(n,d);return [n/g,d/g]}
+function mixed(n,d){const [p,q]=simp(n,d);if(q===1)return `${p}`;if(p<q)return F(p,q);const w=Math.floor(p/q);return `${w} ${F(p-w*q,q)}`}
+
+const sel=$("preset");
+sel.innerHTML='<option value="">Eigene Aufgabe</option>'+PRESETS.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join("");
+sel.addEventListener("change",()=>{if(sel.value==="")return;const p=PRESETS[+sel.value];set(p[1],p[2],p[3],p[4])});
+
+function set(a,b,c,d){stop();Object.assign(st,{a,b,c,d,placed:Infinity});syncInputs();render()}
+function syncInputs(){for(const k of["a","b","c","d"])$(k).value=st[k]}
+const LIM={a:[1,30],b:[1,12],c:[1,30],d:[1,12]};
+function clamp(k,v){v=Math.round(+v||LIM[k][0]);return Math.min(LIM[k][1],Math.max(LIM[k][0],v))}
+document.querySelectorAll(".step").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.k;st[k]=clamp(k,st[k]+(+b.dataset.s));changed()}));
+for(const k of["a","b","c","d"])$(k).addEventListener("change",e=>{st[k]=clamp(k,e.target.value);changed()});
+function changed(){stop();sel.value="";st.placed=Infinity;syncInputs();render()}
+
+function model(){
+  const {a,b,c,d}=st;const A=a/b,D=c/d;
+  const L=lcm(b,d);const p=a*L/b,q=c*L/d; // Dividend = p/L, Divisor = q/L
+  const k=Math.floor(p/q);const r=p-k*q; // Rest in L-tel
+  const end=Math.max(Math.ceil(A-1e-9),r>0?Math.ceil((k+1)*D-1e-9):0,1);
+  return {A,D,L,p,q,k,r,end,total:k+(r>0?1:0)};
+}
+
+function render(){
+  const m=model();const {a,b,c,d}=st;
+  $("question").innerHTML=`Wie oft passt <b>${F(c,d,"c-dvs")}</b> in <b>${F(a,b,"c-dvd")}</b>?`;
+  if(m.end>MAXU||m.total>60){
+    $("svg").innerHTML="";$("note").textContent=m.end>MAXU?`Zu groß für den Balken (über ${MAXU} Ganze). Wähle kleinere Zahlen.`:`Zu viele Stücke (${m.total}) für eine lesbare Darstellung. Wähle einen größeren Divisor.`;
+  } else {$("note").textContent="";drawSVG(m)}
+  ways(m);
+}
+
+function drawSVG(m){
+  const W=1000,ml=46,mr=28,uw=(W-ml-mr)/m.end;const X=v=>ml+v*uw;
+  const y1=44,h1=56,y2=y1+h1+44,h2=56,yAx=y2+h2+26,H=yAx+34;
+  const placed=Math.min(st.placed,m.total);
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s+=`<text x="${ml}" y="${y1-12}" font-size="17" font-weight="700" fill="var(--dividend)" font-family="var(--font-body)">Dividend ${st.a}/${st.b}</text>`;
+  s+=`<text x="${ml}" y="${y2-12}" font-size="17" font-weight="700" fill="var(--piece-b)" font-family="var(--font-body)">Stücke der Größe ${st.c}/${st.d}</text>`;
+  // Ganze als Rahmen
+  for(let u=0;u<m.end;u++){s+=`<rect x="${X(u)}" y="${y1}" width="${uw}" height="${h1}" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>`}
+  // Dividend
+  s+=`<rect x="${X(0)}" y="${y1}" width="${m.A*uw}" height="${h1}" fill="var(--dividend-soft)" stroke="var(--dividend)" stroke-width="2.5"/>`;
+  for(let i=1;i<st.b*m.end;i++){const v=i/st.b;if(v>=m.A-1e-9)break;if(Math.abs(v-Math.round(v))<1e-9)continue;s+=`<line x1="${X(v)}" y1="${y1}" x2="${X(v)}" y2="${y1+h1}" stroke="var(--dividend)" stroke-width="1.2" stroke-opacity=".7"/>`}
+  for(let u=1;u<m.end;u++){if(u<m.A-1e-9)s+=`<line x1="${X(u)}" y1="${y1}" x2="${X(u)}" y2="${y1+h1}" stroke="var(--dividend)" stroke-width="2.5"/>`}
+  // Divisor-Stücke
+  const pw=m.D*uw;
+  for(let i=0;i<placed;i++){
+    const x=X(i*m.D);
+    if(i<m.k){
+      s+=`<rect x="${x+1}" y="${y2}" width="${pw-2}" height="${h2}" rx="4" fill="${i%2?"var(--piece-b)":"var(--piece-a)"}"/>`;
+      for(let j=1;j<st.c;j++){const xx=x+j*uw/st.d;s+=`<line x1="${xx}" y1="${y2+6}" x2="${xx}" y2="${y2+h2-6}" stroke="var(--surface)" stroke-opacity=".55" stroke-width="1.2"/>`}
+      if($("tNum").checked&&pw>=22)s+=`<text x="${x+pw/2}" y="${y2+h2/2+7}" text-anchor="middle" font-size="${Math.min(22,pw*.55)}" font-weight="700" fill="#1d1206" font-family="var(--font-display)">${i+1}</text>`;
+    } else {
+      const fw=(m.r/m.L)*uw;const [rn,rd]=simp(m.r,m.q);
+      s+=`<rect x="${x+1}" y="${y2}" width="${pw-2}" height="${h2}" rx="4" fill="none" stroke="var(--piece-b)" stroke-width="2" stroke-dasharray="6 5"/>`;
+      s+=`<rect x="${x+1}" y="${y2}" width="${Math.max(fw-1,2)}" height="${h2}" rx="4" fill="var(--piece-soft)" stroke="var(--piece-b)" stroke-width="2"/>`;
+      s+=`<text x="${x+pw/2}" y="${y2+h2+20}" text-anchor="middle" font-size="16" font-weight="700" fill="var(--piece-b)" font-family="var(--font-body)">${rn}/${rd} eines Stücks</text>`;
+    }
+  }
+  // gemeinsame Unterteilung
+  if($("tGrid").checked){
+    for(let i=1;i<m.L*m.end;i++){const v=i/m.L;s+=`<line x1="${X(v)}" y1="${y1-4}" x2="${X(v)}" y2="${y2+h2+4}" stroke="var(--grid)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity=".75"/>`}
+    s+=`<text x="${W-mr}" y="${y1-12}" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--font-body)">Unterteilung in ${m.L}-tel</text>`;
+  }
+  // Dividend-Ende markieren
+  s+=`<line x1="${X(m.A)}" y1="${y1-6}" x2="${X(m.A)}" y2="${y2+h2+6}" stroke="var(--dividend)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  // Zahlenstrahl
+  s+=`<line x1="${X(0)}" y1="${yAx}" x2="${X(m.end)}" y2="${yAx}" stroke="var(--ink)" stroke-width="2"/>`;
+  for(let u=0;u<=m.end;u++){s+=`<line x1="${X(u)}" y1="${yAx-8}" x2="${X(u)}" y2="${yAx+8}" stroke="var(--ink)" stroke-width="2"/><text x="${X(u)}" y="${yAx+28}" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)" font-family="var(--font-body)">${u}</text>`}
+  s+="</svg>";$("svg").innerHTML=s;
+}
+
+function ways(m){
+  const {a,b,c,d}=st;
+  // 1 Balken
+  const [rn,rd]=simp(m.r,m.q);
+  const [N,Dn]=simp(a*d,b*c);
+  let r1=`<div><span class="big">${mixed(a*d,b*c)}</span>-mal</div><div style="font-size:1rem;color:var(--muted)">`;
+  r1+= m.k>0?`${m.k} ganze${m.k===1?"s":""} Stück${m.k===1?"":"e"}`:"kein ganzes Stück";
+  r1+= m.r>0?` und ${F(rn,rd)} eines Stücks`:"";
+  r1+=`</div>`;
+  // 2 gemeinsamer Nenner
+  let r2=`<div class="lines">`+
+   `<span>${F(a,b,"c-dvd")}<span class="sym">:</span>${F(c,d,"c-dvs")}</span><span></span><span></span>`+
+   `<span></span><span class="eq">=</span><span>${F(m.p,m.L,"c-dvd")}<span class="sym">:</span>${F(m.q,m.L,"c-dvs")}<span class="hint">beide in ${m.L}-tel</span></span>`+
+   `<span></span><span class="eq">=</span><span><span class="c-dvd">${m.p}</span><span class="sym">:</span><span class="c-dvs">${m.q}</span><span class="hint">${m.L}-tel zählen</span></span>`+
+   `<span></span><span class="eq">=</span><span>${F(m.p,m.q)}</span>`;
+  if(gcd(m.p,m.q)>1||m.q===1)r2+=`<span></span><span class="eq">=</span><span>${Dn===1?N:F(N,Dn)}</span>`;
+  r2+=`</div>`;
+  // 3 Kehrwert
+  let r3=`<div class="lines">`+
+   `<span>${F(a,b,"c-dvd")}<span class="sym">:</span>${F(c,d,"c-dvs")}</span><span></span><span class="hint">Kehrwert von ${c}/${d} ist ${d}/${c}</span>`+
+   `<span></span><span class="eq">=</span><span>${F(a,b,"c-dvd")}<span class="sym">·</span>${F(d,c,"c-dvs")}</span>`+
+   `<span></span><span class="eq">=</span><span>${F(`${a}(${d})`,`${b}(${c})`)}</span>`+
+   `<span></span><span class="eq">=</span><span>${F(a*d,b*c)}</span>`;
+  if(gcd(a*d,b*c)>1)r3+=`<span></span><span class="eq">=</span><span>${Dn===1?N:F(N,Dn)}<span class="hint">gekürzt</span></span>`;
+  r3+=`</div>`;
+  const html={r1,r2,r3};
+  for(const w of["r1","r2","r3"]){
+    $(w).innerHTML=st.show[w]?html[w]:`<div class="hiddenbox">verdeckt – erst vorhersagen, dann aufdecken</div>`;
+    document.querySelector(`.reveal[data-w="${w}"]`).textContent=st.show[w]?"verdecken":"aufdecken";
+  }
+}
+document.querySelectorAll(".reveal").forEach(b=>b.addEventListener("click",()=>{const w=b.dataset.w;st.show[w]=!st.show[w];ways(model())}));
+
+function stop(){if(st.timer){clearInterval(st.timer);st.timer=null}}
+$("clear").addEventListener("click",()=>{stop();st.placed=0;render()});
+$("next").addEventListener("click",()=>{stop();const t=model().total;st.placed=Math.min(t,(st.placed>t?0:st.placed)+1);render()});
+$("all").addEventListener("click",()=>{stop();st.placed=Infinity;render()});
+$("play").addEventListener("click",()=>{stop();st.placed=0;render();const t=model().total;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce){st.placed=Infinity;render();return}
+  st.timer=setInterval(()=>{st.placed++;render();if(st.placed>=t)stop()},Math.max(250,Math.min(800,6000/t)))});
+$("tGrid").addEventListener("change",render);$("tNum").addEventListener("change",render);
+
+sel.value="9";syncInputs();render();
+})();
+</script>
+
+</body></html>
