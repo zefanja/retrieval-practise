@@ -31,10 +31,23 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-siz
 header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
 h1{font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,3.2vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h1 small{display:block;font-family:var(--font-body);font-weight:400;font-size:.95rem;color:var(--muted);letter-spacing:0}
-.presets{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-label.lbl{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-select,button,input{font:inherit;color:inherit}
-select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+button,input{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.counter{font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.taskbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:flex;align-items:stretch;gap:8px;border-bottom:1px solid var(--line)}
+.nav{flex:none;width:56px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:1.5rem;font-weight:700;cursor:pointer}
+.nav:disabled{opacity:.35;cursor:default}
+.nav:focus-visible,.tchip:focus-visible{outline:2px solid var(--dividend);outline-offset:2px}
+.chips{position:relative;flex:1;min-width:0;display:flex;align-items:stretch;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+.grp{flex:none;display:flex;align-items:center;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 2px 0 10px}
+.grp:first-child{padding-left:2px}
+.tchip{flex:none;min-height:60px;min-width:64px;padding:4px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:1.05rem;font-weight:700}
+.tchip small{font-size:.66rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.tchip .f>span:first-child{border-bottom-width:1.5px}
+.tchip.on{background:var(--dividend);border-color:var(--dividend);color:var(--surface)}
+.tchip.on small{color:var(--surface)}
+.tchip.on .c-dvd,.tchip.on .c-dvs,.tchip.on .sym{color:var(--surface)}
 
 .task{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px 28px}
 .edit{display:flex;align-items:center;gap:10px}
@@ -45,7 +58,7 @@ select{background:var(--surface);border:1px solid var(--line);border-radius:8px;
 .fracedit input{width:3.2ch;text-align:center;font-family:var(--font-display);font-weight:800;font-size:2.4rem;border:0;background:transparent;padding:0;-moz-appearance:textfield}
 .fracedit input::-webkit-inner-spin-button,.fracedit input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .fracedit input:focus-visible{outline:2px solid var(--dividend);outline-offset:2px;border-radius:6px}
-.step{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-weight:700;font-size:1.1rem;line-height:1}
+.step{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-weight:700;font-size:1.1rem;line-height:1}
 .step:hover{border-color:var(--muted)} .step:focus-visible{outline:2px solid var(--dividend);outline-offset:2px}
 .dvd .fracedit{color:var(--dividend)} .dvs .fracedit{color:var(--piece-b)}
 .op{font-family:var(--font-display);font-weight:800;font-size:2.6rem;color:var(--muted)}
@@ -92,11 +105,14 @@ footer{font-size:.82rem;color:var(--muted)}
 <div class="wrap">
   <header>
     <h1>Wie oft passt's?<small>Division von Brüchen am Balkenmodell</small></h1>
-    <div class="presets">
-      <label class="lbl" for="preset">Beispiel</label>
-      <select id="preset"></select>
-    </div>
+    <span class="counter" id="counter"></span>
   </header>
+
+  <nav class="taskbar" aria-label="Aufgaben">
+    <button class="nav" id="prev" aria-label="Vorherige Aufgabe">‹</button>
+    <div class="chips" id="chips"></div>
+    <button class="nav" id="nextTask" aria-label="Nächste Aufgabe">›</button>
+  </nav>
 
   <section class="task" aria-label="Aufgabe">
     <div class="edit dvd">
@@ -151,7 +167,7 @@ footer{font-size:.82rem;color:var(--muted)}
 
   <section class="ways">
     <article class="way">
-      <h2>Ergebnis am Balken <button class="reveal" data-w="r1">verdecken</button></h2>
+      <h2>Ergebnis am Balken <button class="reveal" data-w="r1">aufdecken</button></h2>
       <div class="body" id="r1"></div>
     </article>
     <article class="way">
@@ -168,15 +184,16 @@ footer{font-size:.82rem;color:var(--muted)}
 
 <script>
 (function(){
+// [Gruppe, a, b, c, d, Kurzlabel]
 const PRESETS=[
-  ["2 : 1/3 (I do)",2,1,1,3],["2 : 1/5 (I do)",2,1,1,5],["3 : 1/4 (I do)",3,1,1,4],
-  ["4 : 1/2 (Test)",4,1,1,2],["1 : 1/6 (Test)",1,1,1,6],["5 : 1/3 (Test)",5,1,1,3],
-  ["3/4 : 1/8 (E1)",3,4,1,8],["2 : 2/3 (E2)",2,1,2,3],["1 : 2/3 (E3)",1,1,2,3],
-  ["3/4 : 5/7 (E4, Startaufgabe)",3,4,5,7],["8/5 : 1/6 (Atom 2)",8,5,1,6],
-  ["Saftkrug: 3/4 l : 1/8 l",3,4,1,8],["2/5 : 3/7 (Übung 1)",2,5,3,7],["5 : 2/3 (Übung 6)",5,1,2,3]
+  ["I do",2,1,1,3,"I1"],["I do",2,1,1,5,"I2"],["I do",3,1,1,4,"I3"],
+  ["Test",4,1,1,2,"T1"],["Test",1,1,1,6,"T2"],["Test",5,1,1,3,"T4"],
+  ["Expansion",3,4,1,8,"E1"],["Expansion",2,1,2,3,"E2"],["Expansion",1,1,2,3,"E3"],["Expansion",3,4,5,7,"E4"],
+  ["Kehrwert",8,5,1,6,"Atom 2"],
+  ["Übung",2,5,3,7,"Ü1"],["Übung",5,1,2,3,"Ü6"],["Übung",3,4,1,8,"Saftkrug"]
 ];
 const MAXU=10;
-const st={a:3,b:4,c:5,d:7,placed:Infinity,timer:null,show:{r1:true,r2:false,r3:false}};
+const st={a:2,b:1,c:1,d:3,idx:0,last:0,placed:0,timer:null,show:{r1:false,r2:false,r3:false}};
 const $=id=>document.getElementById(id);
 const gcd=(x,y)=>{x=Math.abs(x);y=Math.abs(y);while(y){[x,y]=[y,x%y]}return x||1};
 const lcm=(x,y)=>x/gcd(x,y)*y;
@@ -184,17 +201,41 @@ const F=(n,d,cls)=>`<span class="f ${cls||''}"><span>${n}</span><span>${d}</span
 function simp(n,d){const g=gcd(n,d);return [n/g,d/g]}
 function mixed(n,d){const [p,q]=simp(n,d);if(q===1)return `${p}`;if(p<q)return F(p,q);const w=Math.floor(p/q);return `${w} ${F(p-w*q,q)}`}
 
-const sel=$("preset");
-sel.innerHTML='<option value="">Eigene Aufgabe</option>'+PRESETS.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join("");
-sel.addEventListener("change",()=>{if(sel.value==="")return;const p=PRESETS[+sel.value];set(p[1],p[2],p[3],p[4])});
+const chips=$("chips");
+const term=(n,d,cls)=>d===1?`<span class="${cls}">${n}</span>`:F(n,d,cls);
+let html="",g="";
+PRESETS.forEach((p,i)=>{
+  if(p[0]!==g){g=p[0];html+=`<span class="grp">${g}</span>`}
+  html+=`<button class="tchip" data-i="${i}" aria-label="${p[5]}: ${p[1]}${p[2]>1?"/"+p[2]:""} geteilt durch ${p[3]}/${p[4]}"><span>${term(p[1],p[2],"c-dvd")}<span class="sym">:</span>${term(p[3],p[4],"c-dvs")}</span><small>${p[5]}</small></button>`;
+});
+chips.innerHTML=html;
+chips.addEventListener("click",e=>{const b=e.target.closest(".tchip");if(b)pick(+b.dataset.i)});
+$("prev").addEventListener("click",()=>pick(st.idx<0?st.last:st.idx-1));
+$("nextTask").addEventListener("click",()=>pick(st.idx<0?st.last:st.idx+1));
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT")return;
+  if(e.key==="ArrowRight")$("nextTask").click();
+  if(e.key==="ArrowLeft")$("prev").click();
+});
 
-function set(a,b,c,d){stop();Object.assign(st,{a,b,c,d,placed:Infinity});syncInputs();render()}
+function pick(i){
+  i=Math.max(0,Math.min(PRESETS.length-1,i));
+  const p=PRESETS[i];st.idx=i;st.last=i;set(p[1],p[2],p[3],p[4]);
+}
+function markChips(){
+  chips.querySelectorAll(".tchip").forEach(b=>{const on=+b.dataset.i===st.idx;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);
+    if(on)chips.scrollTo({left:b.offsetLeft-chips.clientWidth/2+b.offsetWidth/2,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})});
+  $("prev").disabled=st.idx===0;$("nextTask").disabled=st.idx===PRESETS.length-1;
+  $("counter").textContent=st.idx<0?"Eigene Aufgabe":`Aufgabe ${st.idx+1} von ${PRESETS.length}`;
+}
+
+function set(a,b,c,d){stop();Object.assign(st,{a,b,c,d,placed:0});st.show={r1:false,r2:false,r3:false};syncInputs();markChips();render()}
 function syncInputs(){for(const k of["a","b","c","d"])$(k).value=st[k]}
 const LIM={a:[1,30],b:[1,12],c:[1,30],d:[1,12]};
 function clamp(k,v){v=Math.round(+v||LIM[k][0]);return Math.min(LIM[k][1],Math.max(LIM[k][0],v))}
 document.querySelectorAll(".step").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.k;st[k]=clamp(k,st[k]+(+b.dataset.s));changed()}));
 for(const k of["a","b","c","d"])$(k).addEventListener("change",e=>{st[k]=clamp(k,e.target.value);changed()});
-function changed(){stop();sel.value="";st.placed=Infinity;syncInputs();render()}
+function changed(){stop();st.idx=-1;st.placed=0;st.show={r1:false,r2:false,r3:false};syncInputs();markChips();render()}
 
 function model(){
   const {a,b,c,d}=st;const A=a/b,D=c/d;
@@ -206,7 +247,7 @@ function model(){
 
 function render(){
   const m=model();const {a,b,c,d}=st;
-  $("question").innerHTML=`Wie oft passt <b>${F(c,d,"c-dvs")}</b> in <b>${F(a,b,"c-dvd")}</b>?`;
+  $("question").innerHTML=`Wie oft passt <b>${F(c,d,"c-dvs")}</b> in <b>${term(a,b,"c-dvd")}</b>?`;
   if(m.end>MAXU||m.total>60){
     $("svg").innerHTML="";$("note").textContent=m.end>MAXU?`Zu groß für den Balken (über ${MAXU} Ganze). Wähle kleinere Zahlen.`:`Zu viele Stücke (${m.total}) für eine lesbare Darstellung. Wähle einen größeren Divisor.`;
   } else {$("note").textContent="";drawSVG(m)}
@@ -218,7 +259,7 @@ function drawSVG(m){
   const y1=44,h1=56,y2=y1+h1+44,h2=56,yAx=y2+h2+26,H=yAx+34;
   const placed=Math.min(st.placed,m.total);
   let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-  s+=`<text x="${ml}" y="${y1-12}" font-size="17" font-weight="700" fill="var(--dividend)" font-family="var(--font-body)">Dividend ${st.a}/${st.b}</text>`;
+  s+=`<text x="${ml}" y="${y1-12}" font-size="17" font-weight="700" fill="var(--dividend)" font-family="var(--font-body)">Dividend ${st.b===1?st.a:st.a+"/"+st.b}</text>`;
   s+=`<text x="${ml}" y="${y2-12}" font-size="17" font-weight="700" fill="var(--piece-b)" font-family="var(--font-body)">Stücke der Größe ${st.c}/${st.d}</text>`;
   // Ganze als Rahmen
   for(let u=0;u<m.end;u++){s+=`<rect x="${X(u)}" y="${y1}" width="${uw}" height="${h1}" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>`}
@@ -296,7 +337,7 @@ $("play").addEventListener("click",()=>{stop();st.placed=0;render();const t=mode
   st.timer=setInterval(()=>{st.placed++;render();if(st.placed>=t)stop()},Math.max(250,Math.min(800,6000/t)))});
 $("tGrid").addEventListener("change",render);$("tNum").addEventListener("change",render);
 
-sel.value="9";syncInputs();render();
+pick(0);
 })();
 </script>
 
