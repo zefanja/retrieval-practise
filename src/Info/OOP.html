@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OOP-Werkstatt – Klasse, Objekt & Co.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf6ec; --paper:#ffffff; --ink:#1d2433; --muted:#5b6475; --line:#1d2433;
+  --k:#2f6fde; --k2:#e3ecfc;   /* Klasse */
+  --o:#e8791c; --o2:#fdeedd;   /* Objekt */
+  --a:#18915f; --a2:#ddf3e8;   /* Attribut */
+  --w:#0b97a8; --w2:#dcf3f6;   /* Attributwert */
+  --m:#8546d6; --m2:#efe5fc;   /* Methode */
+  --d:#d93a72; --d2:#fce3ec;   /* Datentyp */
+  --ok:#18915f; --bad:#d6343f;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:Fredoka,Nunito,sans-serif;line-height:1.15;margin:0 0 .5em}
+h1{font-size:2rem} h2{font-size:1.55rem} h3{font-size:1.15rem}
+p{margin:.6em 0}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.88em}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+
+/* Header */
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:10px;padding:10px 16px;max-width:680px;margin:0 auto}
+.logo{font-family:Fredoka;font-weight:700;font-size:1.15rem;white-space:nowrap}
+.logo span{color:var(--k)}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--paper);font-size:.75rem;font-weight:800;display:grid;place-items:center;padding:0}
+.dot.done{background:var(--ink);color:#fff}
+.dot.cur{outline:3px solid var(--o);outline-offset:1px}
+.dot:disabled{opacity:.35;cursor:default}
+
+main{padding:22px 0 120px}
+.kicker{font-family:Fredoka;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.8rem;margin-bottom:4px}
+
+/* Begriffs-Chips */
+.t{font-weight:800;padding:0 .3em;border-radius:6px;white-space:nowrap}
+.t.k{color:var(--k);background:var(--k2)} .t.o{color:var(--o);background:var(--o2)}
+.t.a{color:var(--a);background:var(--a2)} .t.w{color:var(--w);background:var(--w2)}
+.t.m{color:var(--m);background:var(--m2)} .t.d{color:var(--d);background:var(--d2)}
+
+.card{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:4px 4px 0 var(--line);margin:18px 0}
+.merke{border-left:8px solid var(--k);background:var(--paper);border-radius:10px;padding:12px 14px;margin:18px 0;border-top:2px solid var(--line);border-right:2px solid var(--line);border-bottom:2px solid var(--line)}
+.merke b.lbl{font-family:Fredoka;display:block;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.merke.o{border-left-color:var(--o)} .merke.a{border-left-color:var(--a)} .merke.m{border-left-color:var(--m)} .merke.d{border-left-color:var(--d)}
+.task-h{display:flex;align-items:center;gap:8px;font-family:Fredoka;font-weight:600;font-size:1.1rem;margin:28px 0 4px}
+.task-h .badge{background:var(--ink);color:#fff;border-radius:8px;padding:2px 8px;font-size:.8rem}
+.hint{color:var(--muted);font-size:.93rem;margin:0 0 10px}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.compare>div{border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:var(--paper)}
+.compare .big{font-size:2.2rem;line-height:1.1}
+.compare small{display:block;color:var(--muted);font-size:.85rem}
+
+/* Klassifizieren */
+.cls-item{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;transition:background .2s}
+.cls-item.ok{background:#eefaf3;border-color:var(--ok)}
+.cls-txt{font-weight:700;margin-bottom:8px}
+.cls-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 8px;font-weight:700;min-height:46px;transition:transform .1s}
+.opt:active{transform:scale(.97)}
+.opt.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt.wrong{background:var(--bad);color:#fff;border-color:var(--bad);animation:shake .4s}
+.opt:disabled{cursor:default}
+.cls-item.ok .opt:not(.right){opacity:.4}
+.cls-fb{font-size:.92rem;margin-top:6px;min-height:0}
+.cls-item.ok .cls-fb{color:var(--ok)}
+.cls-item:not(.ok) .cls-fb{color:var(--bad)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Objektkarten / Klassenkarten (UML-ähnlich) */
+.uml{border:2px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden;font-family:"JetBrains Mono",monospace;font-size:.86rem}
+.uml>div{padding:8px 12px}
+.uml>div+div{border-top:2px solid var(--line)}
+.uml .head{font-weight:700;text-align:center;font-family:Fredoka,sans-serif;font-size:1.05rem}
+.uml.cls .head{background:var(--k2);color:var(--k)}
+.uml.obj .head{background:var(--o2);color:var(--o);text-decoration:underline;text-underline-offset:3px}
+.uml .row{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+.uml .an{color:var(--a);font-weight:700}
+.uml .av{color:var(--w);font-weight:700}
+.uml .dt{color:var(--d);font-weight:700}
+.uml .me{color:var(--m);font-weight:700}
+.uml .q{color:#aab;}
+.uml-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.uml-cap{font-size:.8rem;color:var(--muted);text-align:center;margin-top:4px}
+.flash{animation:flash 1s}
+@keyframes flash{0%{background:#fff3a6}100%{background:transparent}}
+
+/* Fabrik */
+.fab-row{margin:10px 0}
+.fab-row .lbl{font-weight:800;font-size:.9rem;margin-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 14px;font-weight:700;min-height:42px}
+.chip.sel{background:var(--o);border-color:var(--o);color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--line);background:var(--ink);color:#fff;border-radius:12px;padding:12px 20px;font-weight:800;font-size:1rem;box-shadow:3px 3px 0 var(--o);min-height:50px}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--o)}
+.btn.ghost{background:var(--paper);color:var(--ink);box-shadow:3px 3px 0 var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.objs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:14px}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.msg{font-weight:700;margin-top:10px}
+.msg.bad{color:var(--bad)} .msg.good{color:var(--ok)}
+
+/* Zuordnen */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.match .col{display:flex;flex-direction:column;gap:8px}
+.match .colh{font-weight:800;font-size:.85rem;text-align:center}
+.mbtn{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:10px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:.9rem;min-height:48px;word-break:break-word}
+.mbtn.attr{color:var(--a)} .mbtn.val{color:var(--w)}
+.mbtn.sel{outline:3px solid var(--o);outline-offset:1px}
+.mbtn.used{opacity:.3;cursor:default}
+.mbtn.wrong{animation:shake .4s;background:#fde4e6}
+
+/* Datentyp-Tabelle */
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:8px;border-bottom:1.5px solid #d9d2c3;vertical-align:top}
+th{font-family:Fredoka;font-weight:600}
+td:first-child{font-weight:800;color:var(--d);white-space:nowrap}
+
+/* Fahrrad */
+.bike-stage{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.bike-stage{grid-template-columns:1fr 1fr}}
+.meths{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mcall{border:2px solid var(--m);color:var(--m);background:var(--m2);border-radius:10px;padding:10px 6px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:.85rem;min-height:48px}
+.mcall:active{transform:scale(.97)}
+.log{font-family:"JetBrains Mono",monospace;font-size:.8rem;background:var(--ink);color:#c9f7d8;border-radius:10px;padding:10px;min-height:86px;max-height:120px;overflow:auto;margin-top:10px}
+.log div{white-space:nowrap}
+.log .c{color:#8fa0bd}
+.mission{list-style:none;padding:0;margin:8px 0}
+.mission li{padding:4px 0}
+.mission li::before{content:"○ ";font-weight:800}
+.mission li.ok{color:var(--ok);font-weight:700}
+.mission li.ok::before{content:"✓ "}
+.bell{position:relative}
+.bubble{position:absolute;right:8px;top:-14px;background:#ffe36e;border:2px solid var(--line);border-radius:12px;padding:2px 10px;font-weight:800;animation:pop .3s}
+.bike-svg{display:block;width:100%;max-width:240px;margin:0 auto}
+
+/* Bottom nav */
+.navbar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:2px solid var(--line);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+.navbar .in{max-width:680px;margin:0 auto;display:flex;gap:10px;padding:10px 16px}
+.navbar .btn{flex:1}
+.navbar .btn.ghost{flex:0 0 auto}
+
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ok);color:#fff;font-weight:800;padding:10px 18px;border-radius:999px;border:2px solid var(--line);z-index:9;animation:pop .3s;white-space:nowrap}
+
+/* Start */
+.hero{text-align:center;padding:10px 0}
+.hero .em{font-size:3rem}
+label.f{display:block;font-weight:800;margin:14px 0 4px}
+input.f{width:100%;font:inherit;padding:12px;border:2px solid var(--line);border-radius:10px;background:var(--paper);min-height:50px}
+input.f:focus{outline:3px solid var(--k);outline-offset:1px}
+.terms{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0}
+
+/* Quiz */
+.qprog{height:10px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper);margin:8px 0 16px}
+.qprog>div{height:100%;background:var(--o);transition:width .3s}
+.qopts{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.qopt{text-align:left;border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:12px 14px;font-weight:700;min-height:52px}
+.qopt.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.qopt.wrong{background:var(--bad);color:#fff;border-color:var(--bad)}
+.qopt:disabled{cursor:default}
+.qwhy{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bg);border:2px dashed var(--line);font-size:.95rem}
+
+/* Ergebnis */
+.result{text-align:center}
+.lw{font-family:"JetBrains Mono",monospace;font-size:1.6rem;font-weight:700;letter-spacing:.04em;background:var(--ink);color:#fff;border-radius:12px;padding:14px 10px;margin:12px 0;word-break:break-all}
+.score{font-family:Fredoka;font-size:2.4rem;font-weight:700}
+.meta{color:var(--muted);font-size:.9rem}
+.stars{font-size:1.8rem;letter-spacing:4px}
+footer{text-align:center;padding:30px 0 10px;font-size:.85rem;color:var(--muted)}
+footer a{color:var(--muted)}
+.verify{font-weight:800;padding:12px;border-radius:10px;margin-top:12px}
+.verify.ok{background:#e3f6ec;color:var(--ok);border:2px solid var(--ok)}
+.verify.bad{background:#fde4e6;color:var(--bad);border:2px solid var(--bad)}
+</style>
+</head>
+<body>
+<header><div class="hbar">
+  <div class="logo">OOP-<span>Werkstatt</span></div>
+  <div class="dots" id="dots"></div>
+</div></header>
+
+<main><div class="wrap" id="main"></div>
+<footer class="wrap"><a href="#lehrer" id="tlink">Für Lehrkräfte: Lösungswort prüfen</a></footer>
+</main>
+
+<div class="navbar" id="navbar"><div class="in">
+  <button class="btn ghost" id="back" aria-label="Zurück">←</button>
+  <button class="btn" id="next">Weiter →</button>
+</div></div>
+
+<script>
+/* ---------- Helfer ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const buzz = () => { try { navigator.vibrate && navigator.vibrate(60); } catch (e) {} };
+const KEY = 'oop7-werkstatt-v1';
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+let S = load() || { vorname:'', nachname:'', klasse:'', step:0, done:{}, result:null };
+
+function toast(t){ const d=document.createElement('div'); d.className='toast'; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+
+/* ---------- Lösungswort ---------- */
+const WORDS=['PINGUIN','KOMET','VULKAN','TORNADO','DRACHE','RAKETE','KAKTUS','PIRAT','ROBOTER','GALAXIE','ZEBRA','LAMA','MAMMUT','KOBOLD','PLANET','QUALLE','TUKAN','OKTOPUS','GEYSIR','PAPAGEI','DELFIN','FALKE','GORILLA','IGEL','KOALA','LUCHS','NASHORN','OTTER','PANTHER','WAL','YETI','BLITZ'];
+const ALPHA='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function fnv(s){ let h=0x811c9dc5; for(const c of s){ h^=c.codePointAt(0); h=Math.imul(h,0x01000193)>>>0; } return h>>>0; }
+const norm = s => String(s||'').toLowerCase().normalize('NFC').replace(/[\s\-\.]+/g,'');
+function makeCode(vn, nn, kl, score){
+  const id = norm(vn)+'|'+norm(nn)+'|'+norm(kl);
+  const word = WORDS[fnv(id+'|wort|oop7') % WORDS.length];
+  let h = fnv(id+'|'+score+'|chk|oop7'), chk='';
+  for(let i=0;i<4;i++){ chk+=ALPHA[h%ALPHA.length]; h=Math.floor(h/ALPHA.length); }
+  return word+'-'+score+'-'+chk;
+}
+
+/* ---------- Schritte ---------- */
+const STEPS=[
+  {id:'start'},
+  {id:'klasse', title:'Klasse'},
+  {id:'objekt', title:'Objekt'},
+  {id:'attribut', title:'Attribut & Wert'},
+  {id:'datentyp', title:'Datentyp'},
+  {id:'methode', title:'Methode'},
+  {id:'karte', title:'Klassenkarte'},
+  {id:'quiz', title:'Quiz'},
+  {id:'ergebnis'}
+];
+let teacherView = false;
+
+function canGo(i){
+  if(i<=0) return true;
+  if(!S.vorname) return false;
+  for(let j=1;j<i;j++){ if(j<=7 && !S.done[STEPS[j].id]) return false; }
+  return true;
+}
+function go(i){ if(!canGo(i)) return; S.step=i; save(); teacherView=false; if(location.hash) history.replaceState(null,'',location.pathname+location.search); render(); window.scrollTo(0,0); }
+function complete(id){
+  if(!S.done[id]){ S.done[id]=true; save(); toast('Geschafft! Weiter geht’s ✓'); }
+  updateNav();
+}
+
+function renderDots(){
+  const d=$('#dots'); d.innerHTML='';
+  for(let i=1;i<=7;i++){
+    const b=document.createElement('button');
+    b.className='dot'+(S.done[STEPS[i].id]?' done':'')+(S.step===i?' cur':'');
+    b.textContent=i===7?'?':i; b.title=STEPS[i].title; b.disabled=!canGo(i);
+    b.onclick=()=>go(i); d.appendChild(b);
+  }
+}
+function updateNav(){
+  renderDots();
+  const nb=$('#navbar'), next=$('#next'), back=$('#back');
+  const st=STEPS[S.step].id;
+  if(teacherView || st==='start' || st==='quiz' || st==='ergebnis'){ nb.style.display='none'; return; }
+  nb.style.display='';
+  back.onclick=()=>go(S.step-1);
+  next.disabled=!S.done[st];
+  next.textContent = S.done[st] ? (S.step===6?'Zum Quiz →':'Weiter →') : 'Erst die Aufgabe lösen';
+  next.onclick=()=>go(S.step+1);
+}
+
+function render(){
+  const m=$('#main');
+  if(teacherView){ renderTeacher(m); updateNav(); return; }
+  const st=STEPS[S.step].id;
+  ({start:renderStart,klasse:renderKlasse,objekt:renderObjekt,attribut:renderAttribut,datentyp:renderDatentyp,methode:renderMethode,karte:renderKarte,quiz:renderQuiz,ergebnis:renderErgebnis})[st](m);
+  updateNav();
+}
+
+/* ---------- Bausteine ---------- */
+function classify(el, items, opts, onDone){
+  let left=items.length; el.innerHTML='';
+  shuffle(items).forEach(it=>{
+    const c=document.createElement('div'); c.className='cls-item';
+    c.innerHTML=`<div class="cls-txt">${it.t}</div><div class="cls-opts">${opts.map(o=>`<button class="opt" data-k="${o.k}">${o.l}</button>`).join('')}</div><div class="cls-fb"></div>`;
+    c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(c.classList.contains('ok')) return;
+      const fb=c.querySelector('.cls-fb');
+      if(b.dataset.k===it.a){
+        c.classList.add('ok'); b.classList.add('right');
+        c.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.innerHTML='✓ '+(it.w||'Richtig!');
+        if(--left===0) onDone();
+      } else {
+        b.classList.add('wrong'); setTimeout(()=>b.classList.remove('wrong'),500);
+        fb.innerHTML='✗ '+(it.h||'Noch nicht – überleg nochmal.'); buzz();
+      }
+    });
+    el.appendChild(c);
+  });
+}
+function head(n, title){ return `<div class="kicker">Schritt ${n} von 7</div><h2>${title}</h2>`; }
+
+/* ---------- Start ---------- */
+function renderStart(m){
+  m.innerHTML=`
+  <div class="hero">
+    <div class="em">🧩</div>
+    <h1>Willkommen in der<br>OOP-Werkstatt!</h1>
+    <p>Programmierer sehen die Welt als <b>Objekte</b>: dein Handy, dein Fahrrad, dein Haustier. In 6 kurzen Stationen lernst du, wie sie darüber denken.</p>
+    <div class="terms"><span class="t k">Klasse</span><span class="t o">Objekt</span><span class="t a">Attribut</span><span class="t w">Attributwert</span><span class="t d">Datentyp</span><span class="t m">Methode</span></div>
+    <p class="hint">Am Ende wartet ein Quiz mit deinem persönlichen Lösungswort.</p>
+  </div>
+  <div class="card">
+    <h3>Wer bist du?</h3>
+    <p class="hint">Schreib deinen Namen genau so, wie er auf der Klassenliste steht – dein Lösungswort wird daraus berechnet.</p>
+    <form id="f">
+      <label class="f" for="vn">Vorname</label><input class="f" id="vn" autocomplete="given-name" required value="${esc(S.vorname)}">
+      <label class="f" for="nn">Nachname</label><input class="f" id="nn" autocomplete="family-name" required value="${esc(S.nachname)}">
+      <label class="f" for="kl">Klasse</label><input class="f" id="kl" placeholder="z. B. 7a" required value="${esc(S.klasse)}">
+      <div class="msg bad" id="fm"></div>
+      <div style="margin-top:16px"><button class="btn" style="width:100%">${S.vorname?'Weitermachen →':'Los geht’s →'}</button></div>
+    </form>
+  </div>`;
+  $('#f').onsubmit=e=>{
+    e.preventDefault();
+    const vn=$('#vn').value.trim(), nn=$('#nn').value.trim(), kl=$('#kl').value.trim();
+    if(!vn||!nn||!kl){ $('#fm').textContent='Bitte alle drei Felder ausfüllen.'; return; }
+    if(S.vorname && (norm(vn)!==norm(S.vorname)||norm(nn)!==norm(S.nachname)||norm(kl)!==norm(S.klasse))) S.result=null;
+    S.vorname=vn; S.nachname=nn; S.klasse=kl; save();
+    let i=1; while(i<7 && S.done[STEPS[i].id]) i++;
+    go(i);
+  };
+}
+
+/* ---------- 1 Klasse ---------- */
+function renderKlasse(m){
+  m.innerHTML=`${head(1,'Klasse – der Bauplan')}
+  <p>Stell dir eine <b>Sneaker-Fabrik</b> vor. Bevor dort auch nur ein Schuh entsteht, gibt es einen <b>Bauplan</b>. Darin steht: Jeder Sneaker hat eine Größe, eine Farbe und eine Sohle. Und: Man kann ihn schnüren.</p>
+  <p>Den Bauplan selbst kannst du nicht anziehen. Er beschreibt nur, wie <i>alle</i> Sneaker aufgebaut sind. In der Informatik nennt man so einen Bauplan eine <span class="t k">Klasse</span>.</p>
+  <div class="compare">
+    <div><div class="big">📐</div><b>Bauplan „Sneaker“</b><small>gibt es nur einmal, kann man nicht anziehen</small></div>
+    <div><div class="big">👟👟👟</div><b>echte Sneaker</b><small>so viele, wie die Fabrik will</small></div>
+  </div>
+  <p>Ein Plätzchen-Ausstecher funktioniert genauso: Der Ausstecher ist die Form, essen kannst du nur die Plätzchen 🍪.</p>
+  <div class="merke"><b class="lbl" style="color:var(--k)">Merke</b>Eine <span class="t k">Klasse</span> ist ein <b>Bauplan</b>. Sie legt fest, welche Eigenschaften und Fähigkeiten alle Dinge dieser Art haben. Klassennamen beginnen mit einem Großbuchstaben: <code>Sneaker</code>, <code>Fahrrad</code>, <code>Haustier</code>.</div>
+  <div class="task-h"><span class="badge">Aufgabe</span> Bauplan oder echtes Ding?</div>
+  <p class="hint">Entscheide bei jedem Begriff: Ist das ein allgemeiner Bauplan (Klasse) – oder ein ganz bestimmtes, echtes Ding?</p>
+  <div id="task"></div>`;
+  classify($('#task'),[
+    {t:'Fahrrad', a:'K', w:'„Fahrrad“ beschreibt alle Fahrräder – ein Bauplan.', h:'Welches Fahrrad genau? „Fahrrad“ allein meint alle Fahrräder.'},
+    {t:'Das grüne Fahrrad von Ben', a:'O', w:'Genau dieses eine Fahrrad kann man anfassen.', h:'Hier geht es um ein ganz bestimmtes Fahrrad.'},
+    {t:'Haustier', a:'K', w:'Ein allgemeiner Begriff – der Bauplan.', h:'Welches Haustier? Es ist keines genau gemeint.'},
+    {t:'Mias Katze Luna', a:'O', w:'Luna gibt es genau einmal.', h:'Luna ist eine ganz bestimmte Katze.'},
+    {t:'Das Handy in deiner Hosentasche', a:'O', w:'Dein Handy – ein ganz bestimmtes Ding.', h:'Es geht um genau ein Handy: deins.'},
+    {t:'Schulranzen', a:'K', w:'Beschreibt alle Schulranzen.', h:'Welcher Ranzen? Gemeint sind alle.'}
+  ],[{k:'K',l:'📐 Klasse'},{k:'O',l:'👟 echtes Ding'}],()=>complete('klasse'));
+}
+
+/* ---------- 2 Objekt ---------- */
+function renderObjekt(m){
+  m.innerHTML=`${head(2,'Objekt – das echte Ding')}
+  <p>Aus einem Bauplan kann die Fabrik so viele Sneaker bauen, wie sie will. Jeder einzelne, echte Schuh ist ein <span class="t o">Objekt</span>. Das grüne Fahrrad von Ben ist ein Objekt der Klasse <code>Fahrrad</code>. Mias Katze Luna ist ein Objekt der Klasse <code>Haustier</code>.</p>
+  <p>Alle Objekte einer Klasse sind <b>gleich aufgebaut</b>, aber jedes ist <b>einzigartig</b>: Luna ist eine Katze und 3 Jahre alt, Bello ist ein Hund und 7.</p>
+  <div class="merke o"><b class="lbl" style="color:var(--o)">Merke</b>Ein <span class="t o">Objekt</span> ist ein ganz bestimmtes Ding, das nach dem Bauplan einer <span class="t k">Klasse</span> gebaut wurde. Objektnamen beginnen klein: <code>luna</code>, <code>bensRad</code>. Man schreibt: <code style="text-decoration:underline">luna : Haustier</code> („luna ist ein Objekt der Klasse Haustier“).</div>
+  <div class="task-h"><span class="badge">Aufgabe</span> Die Haustier-Fabrik</div>
+  <p class="hint">Hier ist der Bauplan <code>Haustier</code>. Wähle Werte aus und erzeuge <b>zwei verschiedene Objekte</b>.</p>
+  <div class="uml cls" style="max-width:260px"><div class="head">Haustier</div><div><div class="row"><span class="an">name</span></div><div class="row"><span class="an">tierart</span></div><div class="row"><span class="an">alter</span></div></div></div>
+  <div class="card">
+    <div class="fab-row"><div class="lbl">name</div><div class="chips" data-f="name"></div></div>
+    <div class="fab-row"><div class="lbl">tierart</div><div class="chips" data-f="tierart"></div></div>
+    <div class="fab-row"><div class="lbl">alter</div><div class="chips" data-f="alter"></div></div>
+    <button class="btn" id="mk" style="margin-top:10px;width:100%">🏭 Objekt erzeugen</button>
+    <div class="msg" id="fmsg"></div>
+  </div>
+  <div class="objs" id="objs"></div>`;
+  const opts={name:['Luna','Bello','Krümel','Nemo'],tierart:['Katze','Hund','Hamster','Fisch'],alter:[1,3,7,12]};
+  const sel={}, made=[];
+  for(const f in opts){
+    const box=m.querySelector(`[data-f="${f}"]`);
+    opts[f].forEach(v=>{ const b=document.createElement('button'); b.className='chip'; b.textContent=v;
+      b.onclick=()=>{ box.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); sel[f]=v; };
+      box.appendChild(b); });
+  }
+  $('#mk').onclick=()=>{
+    const msg=$('#fmsg');
+    if(!sel.name||!sel.tierart||sel.alter==null){ msg.className='msg bad'; msg.textContent='Wähle für jedes Attribut einen Wert.'; buzz(); return; }
+    const vn=sel.name.toLowerCase().replace('ü','ue');
+    if(made.includes(vn)){ msg.className='msg bad'; msg.textContent=`Es gibt schon ein Objekt „${vn}“ – nimm einen anderen Namen.`; buzz(); return; }
+    made.push(vn);
+    const d=document.createElement('div'); d.className='uml obj pop';
+    d.innerHTML=`<div class="head">${vn} : Haustier</div><div>
+      <div class="row"><span class="an">name</span><span>= <span class="av">"${sel.name}"</span></span></div>
+      <div class="row"><span class="an">tierart</span><span>= <span class="av">"${sel.tierart}"</span></span></div>
+      <div class="row"><span class="an">alter</span><span>= <span class="av">${sel.alter}</span></span></div></div>`;
+    $('#objs').appendChild(d);
+    msg.className='msg good';
+    msg.textContent = made.length===1 ? 'Dein erstes Objekt! Jetzt noch eins.' : `${made.length} Objekte – alle aus demselben Bauplan, aber jedes mit eigenen Werten.`;
+    if(made.length>=2) complete('objekt');
+  };
+}
+
+/* ---------- 3 Attribut & Attributwert ---------- */
+function renderAttribut(m){
+  const pairs=[['farbe','"mint"'],['akkustand','73'],['klingelton','"Pling"'],['hatHuelle','wahr']];
+  m.innerHTML=`${head(3,'Attribut & Attributwert')}
+  <p>Im Bauplan <code>Smartphone</code> steht, welche <b>Eigenschaften</b> jedes Handy hat: eine Farbe, einen Akkustand, einen Klingelton … Diese Eigenschaften heißen <span class="t a">Attribute</span>.</p>
+  <p>Jedes einzelne Handy hat für jedes Attribut einen <b>eigenen Wert</b>: Dein Handy ist vielleicht mint und hat 73 % Akku, das deiner Freundin ist schwarz und hat nur noch 12 %. Diese Werte heißen <span class="t w">Attributwerte</span>.</p>
+  <div class="compare">
+    <div><b class="t a">Attribut</b><p style="margin:.4em 0"><code>farbe</code></p><small>steht im Bauplan (Klasse) – jedes Handy hat eine Farbe</small></div>
+    <div><b class="t w">Attributwert</b><p style="margin:.4em 0"><code>"mint"</code></p><small>gehört zu einem bestimmten Objekt – genau dieses Handy ist mint</small></div>
+  </div>
+  <div class="merke a"><b class="lbl" style="color:var(--a)">Merke</b><span class="t a">Attribute</span> sind die Eigenschaften, die in der Klasse festgelegt sind. Jedes Objekt hat für jedes Attribut einen <span class="t w">Attributwert</span>. Man schreibt: <code>farbe = "mint"</code>.</div>
+  <div class="task-h"><span class="badge">Aufgabe</span> Bau dein Handy-Objekt</div>
+  <p class="hint">Tippe zuerst ein <b style="color:var(--a)">Attribut</b> an, dann den passenden <b style="color:var(--w)">Attributwert</b>.</p>
+  <div class="uml obj" style="max-width:300px;margin:0 auto" id="phone"><div class="head">meinHandy : Smartphone</div><div>
+    ${pairs.map(p=>`<div class="row" data-a="${p[0]}"><span class="an">${p[0]}</span><span>= <span class="q">?</span></span></div>`).join('')}
+  </div></div>
+  <div class="match">
+    <div class="col"><div class="colh" style="color:var(--a)">Attribute</div>${shuffle(pairs).map(p=>`<button class="mbtn attr" data-a="${p[0]}">${p[0]}</button>`).join('')}</div>
+    <div class="col"><div class="colh" style="color:var(--w)">Attributwerte</div>${shuffle(pairs).map(p=>`<button class="mbtn val" data-v="${esc(p[1])}" data-a="${p[0]}">${esc(p[1])}</button>`).join('')}</div>
+  </div>
+  <div class="msg" id="mmsg"></div>`;
+  let selA=null, selV=null, left=pairs.length;
+  const tryMatch=()=>{
+    if(!selA||!selV) return;
+    const msg=$('#mmsg');
+    if(selA.dataset.a===selV.dataset.a){
+      const row=m.querySelector(`#phone .row[data-a="${selA.dataset.a}"]`);
+      row.lastElementChild.innerHTML=`= <span class="av">${esc(selV.dataset.v)}</span>`; row.classList.add('flash');
+      [selA,selV].forEach(b=>{b.classList.remove('sel');b.classList.add('used');b.disabled=true;});
+      msg.className='msg good'; msg.textContent=`✓ ${selA.dataset.a} = ${selV.dataset.v}`;
+      if(--left===0){ msg.textContent='✓ Fertig! meinHandy hat jetzt für jedes Attribut einen Wert.'; complete('attribut'); }
+    } else {
+      [selA,selV].forEach(b=>{b.classList.remove('sel');b.classList.add('wrong');setTimeout(()=>b.classList.remove('wrong'),450);});
+      msg.className='msg bad'; msg.textContent='Passt nicht. Welcher Wert ergibt für dieses Attribut Sinn?'; buzz();
+    }
+    selA=selV=null;
+  };
+  m.querySelectorAll('.mbtn.attr').forEach(b=>b.onclick=()=>{ m.querySelectorAll('.mbtn.attr').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); selA=b; tryMatch(); });
+  m.querySelectorAll('.mbtn.val').forEach(b=>b.onclick=()=>{ m.querySelectorAll('.mbtn.val').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); selV=b; tryMatch(); });
+}
+
+/* ---------- 4 Datentyp ---------- */
+function renderDatentyp(m){
+  m.innerHTML=`${head(4,'Datentyp – welche Art von Wert?')}
+  <p>Stell dir vor, im Handy steht plötzlich <code>akkustand = "Banane"</code>. Unsinn! Deshalb legt man im Bauplan für jedes Attribut fest, <b>welche Art von Wert</b> erlaubt ist. Das ist der <span class="t d">Datentyp</span>.</p>
+  <div class="card" style="padding:8px 10px"><table>
+    <tr><th>Datentyp</th><th>Was ist das?</th><th>Beispiele</th></tr>
+    <tr><td>Text<br><small style="color:var(--muted);font-weight:600">(String)</small></td><td>Buchstaben, Wörter, Zeichen – steht in Anführungszeichen</td><td><code>"Luna"</code>, <code>"mint"</code></td></tr>
+    <tr><td>Ganzzahl<br><small style="color:var(--muted);font-weight:600">(Integer)</small></td><td>Zahl ohne Komma</td><td><code>73</code>, <code>12</code>, <code>-4</code></td></tr>
+    <tr><td>Kommazahl<br><small style="color:var(--muted);font-weight:600">(Float)</small></td><td>Zahl mit Komma</td><td><code>2,49</code>, <code>36,8</code></td></tr>
+    <tr><td>Wahrheitswert<br><small style="color:var(--muted);font-weight:600">(Boolean)</small></td><td>nur zwei Möglichkeiten</td><td><code>wahr</code>, <code>falsch</code></td></tr>
+  </table></div>
+  <div class="merke d"><b class="lbl" style="color:var(--d)">Merke</b>Der <span class="t d">Datentyp</span> legt fest, welche Art von <span class="t w">Wert</span> ein <span class="t a">Attribut</span> haben darf. In der Klasse schreibt man: <code>akkustand : Ganzzahl</code>.</div>
+  <p class="hint">💡 Profi-Tipp: In Programmiersprachen schreibt man Kommazahlen mit Punkt, also <code>2.49</code>.</p>
+  <div class="task-h"><span class="badge">Aufgabe</span> Welcher Datentyp passt?</div>
+  <p class="hint">Achtung, bei einer Aufgabe steckt eine kleine Falle drin.</p>
+  <div id="task"></div>`;
+  const T={k:'T',l:'Text'},G={k:'G',l:'Ganzzahl'},K={k:'K',l:'Kommazahl'},W={k:'W',l:'Wahrheitswert'};
+  classify($('#task'),[
+    {t:'<code>spitzname = "Bello"</code>', a:'T', w:'Ein Name besteht aus Buchstaben → Text.', h:'Steht der Wert in Anführungszeichen?'},
+    {t:'<code>alter = 13</code>', a:'G', w:'13 hat kein Komma → Ganzzahl.', h:'Hat die Zahl ein Komma?'},
+    {t:'<code>preisBrezel = 1,20</code>', a:'K', w:'1,20 hat ein Komma → Kommazahl.', h:'Schau genau: Da ist ein Komma in der Zahl.'},
+    {t:'<code>akkuLaedtGerade = wahr</code>', a:'W', w:'Entweder lädt der Akku oder nicht → Wahrheitswert.', h:'Wie viele Möglichkeiten gibt es hier?'},
+    {t:'<code>schuhgroesse = 39</code>', a:'G', w:'39 ohne Komma → Ganzzahl.', h:'Hat die Zahl ein Komma?'},
+    {t:'<code>istStummgeschaltet = falsch</code>', a:'W', w:'Nur „wahr“ oder „falsch“ möglich → Wahrheitswert.', h:'Es gibt nur zwei Möglichkeiten: stumm oder nicht stumm.'},
+    {t:'<code>koerpertemperatur = 36,8</code>', a:'K', w:'36,8 hat ein Komma → Kommazahl.', h:'Schau auf das Komma.'},
+    {t:'<code>telefonnummer = "0176 1234567"</code>', a:'T', w:'Die Falle! Mit Telefonnummern rechnet man nicht, sie haben Leerzeichen und eine führende 0 → Text.', h:'Rechnet man mit einer Telefonnummer? Und schau auf die Anführungszeichen.'}
+  ],[T,G,K,W],()=>complete('datentyp'));
+}
+
+/* ---------- 5 Methode ---------- */
+function renderMethode(m){
+  m.innerHTML=`${head(5,'Methode – was ein Objekt kann')}
+  <p>Ein Fahrrad hat nicht nur Eigenschaften – man kann auch etwas damit <b>tun</b>: klingeln, schalten, bremsen. Diese Fähigkeiten heißen <span class="t m">Methoden</span>. Du erkennst sie an den runden Klammern: <code>klingeln()</code>.</p>
+  <p>Um eine Methode bei einem bestimmten Objekt aufzurufen, schreibt man: <b>Objekt, Punkt, Methode</b> → <code><span style="color:var(--o)">meinRad</span>.<span style="color:var(--m)">klingeln()</span></code></p>
+  <p>Viele Methoden <b>verändern Attributwerte</b>: <code>hochschalten()</code> erhöht den Wert von <code>gang</code>.</p>
+  <div class="merke m"><b class="lbl" style="color:var(--m)">Merke</b>Eine <span class="t m">Methode</span> beschreibt, was ein Objekt <b>tun kann</b>. Methoden stehen in der Klasse und können die Attributwerte eines Objekts verändern.</div>
+  <div class="task-h"><span class="badge">Aufgabe</span> Heimweg im Dunkeln</div>
+  <p class="hint">Es wird dunkel und du musst schnell nach Hause. Rufe Methoden von <code>meinRad</code> auf, bis alle Ziele erfüllt sind:</p>
+  <ul class="mission" id="mis">
+    <li data-k="licht">Licht ist an (<code>lichtAn = wahr</code>)</li>
+    <li data-k="gang">Du fährst im 3. Gang (<code>gang = 3</code>)</li>
+    <li data-k="tempo">Du fährst mindestens 20 km/h</li>
+    <li data-k="kling">Du hast einmal geklingelt</li>
+  </ul>
+  <div class="bike-stage">
+    <div class="bell" id="bell">
+      <svg class="bike-svg" viewBox="0 0 220 120" aria-hidden="true">
+        <g id="beam" opacity="0"><polygon points="178,52 220,30 220,78" fill="#ffe36e" opacity=".7"/></g>
+        <circle cx="50" cy="85" r="28" fill="none" stroke="#1d2433" stroke-width="5"/>
+        <circle cx="165" cy="85" r="28" fill="none" stroke="#1d2433" stroke-width="5"/>
+        <polyline points="50,85 90,45 140,45 165,85" fill="none" stroke="#e8791c" stroke-width="6" stroke-linejoin="round"/>
+        <polyline points="90,45 108,85 140,45" fill="none" stroke="#e8791c" stroke-width="6" stroke-linejoin="round"/>
+        <line x1="85" y1="34" x2="100" y2="34" stroke="#1d2433" stroke-width="6" stroke-linecap="round"/>
+        <line x1="140" y1="45" x2="150" y2="25" stroke="#1d2433" stroke-width="5"/>
+        <line x1="143" y1="25" x2="162" y2="25" stroke="#1d2433" stroke-width="5" stroke-linecap="round"/>
+        <circle id="lamp" cx="172" cy="52" r="6" fill="#c9c9c9" stroke="#1d2433" stroke-width="2"/>
+      </svg>
+      <div class="uml obj" style="margin-top:8px"><div class="head">meinRad : Fahrrad</div><div id="battr"></div></div>
+    </div>
+    <div>
+      <div class="meths">
+        ${['treten()','bremsen()','hochschalten()','runterschalten()','lichtSchalten()','klingeln()'].map(x=>`<button class="mcall" data-m="${x}">${x}</button>`).join('')}
+      </div>
+      <div class="log" id="log"><div class="c">// Tippe eine Methode an …</div></div>
+    </div>
+  </div>
+  <div class="msg" id="bmsg"></div>`;
+  const b={gang:1,tempo:0,lichtAn:false}; let kling=false;
+  const draw=(changed)=>{
+    $('#battr').innerHTML=[['gang',b.gang],['tempo',b.tempo],['lichtAn',b.lichtAn?'wahr':'falsch']]
+      .map(([k,v])=>`<div class="row ${changed===k?'flash':''}"><span class="an">${k}</span><span>= <span class="av">${v}</span></span></div>`).join('');
+    $('#lamp').setAttribute('fill',b.lichtAn?'#ffe36e':'#c9c9c9');
+    $('#beam').setAttribute('opacity',b.lichtAn?'1':'0');
+    const st={licht:b.lichtAn,gang:b.gang===3,tempo:b.tempo>=20,kling};
+    m.querySelectorAll('#mis li').forEach(li=>li.classList.toggle('ok',!!st[li.dataset.k]));
+    if(st.licht&&st.gang&&st.tempo&&st.kling&&!S.done.methode){ $('#bmsg').className='msg good'; $('#bmsg').textContent='✓ Sicher zu Hause angekommen! Du hast Methoden aufgerufen und damit Attributwerte verändert.'; complete('methode'); }
+  };
+  const log=(call,res)=>{ const l=$('#log'); if(l.querySelector('.c')&&l.children.length===1) l.innerHTML=''; l.insertAdjacentHTML('beforeend',`<div>meinRad.${call}${res?` <span class="c">// ${res}</span>`:''}</div>`); l.scrollTop=l.scrollHeight; };
+  m.querySelectorAll('.mcall').forEach(btn=>btn.onclick=()=>{
+    const x=btn.dataset.m; let ch=null, r='';
+    if(x==='treten()'){ b.tempo=Math.min(35,b.tempo+3*b.gang); ch='tempo'; r='tempo → '+b.tempo; }
+    if(x==='bremsen()'){ b.tempo=Math.max(0,b.tempo-10); ch='tempo'; r='tempo → '+b.tempo; }
+    if(x==='hochschalten()'){ if(b.gang<7){b.gang++; r='gang → '+b.gang;} else r='schon im höchsten Gang'; ch='gang'; }
+    if(x==='runterschalten()'){ if(b.gang>1){b.gang--; r='gang → '+b.gang;} else r='schon im 1. Gang'; ch='gang'; }
+    if(x==='lichtSchalten()'){ b.lichtAn=!b.lichtAn; ch='lichtAn'; r='lichtAn → '+(b.lichtAn?'wahr':'falsch'); }
+    if(x==='klingeln()'){ kling=true; r='ändert kein Attribut'; const bb=document.createElement('div'); bb.className='bubble'; bb.textContent='Kling kling! 🔔'; $('#bell').appendChild(bb); setTimeout(()=>bb.remove(),1100); }
+    log(x,r); draw(ch);
+  });
+  draw();
+}
+
+/* ---------- 6 Klassenkarte ---------- */
+function renderKarte(m){
+  m.innerHTML=`${head(6,'Alles zusammen: die Klassenkarte')}
+  <p>Informatiker zeichnen Klassen und Objekte als Karten. Links der <b>Bauplan</b>, rechts ein <b>Objekt</b>, das danach gebaut wurde:</p>
+  <div class="uml-pair">
+    <div><div class="uml cls"><div class="head">Smartphone</div>
+      <div><div class="row"><span class="an">farbe</span><span class="dt">: Text</span></div><div class="row"><span class="an">akkustand</span><span class="dt">: Ganzzahl</span></div><div class="row"><span class="an">hatHuelle</span><span class="dt">: Wahrheitsw.</span></div></div>
+      <div><div class="row"><span class="me">anrufen()</span></div><div class="row"><span class="me">aufladen()</span></div><div class="row"><span class="me">lauterStellen()</span></div></div>
+    </div><div class="uml-cap">Klassenkarte</div></div>
+    <div><div class="uml obj"><div class="head">meinHandy : Smartphone</div>
+      <div><div class="row"><span class="an">farbe</span><span>= <span class="av">"mint"</span></span></div><div class="row"><span class="an">akkustand</span><span>= <span class="av">73</span></span></div><div class="row"><span class="an">hatHuelle</span><span>= <span class="av">wahr</span></span></div></div>
+    </div><div class="uml-cap">Objektkarte</div></div>
+  </div>
+  <div class="card" style="padding:8px 10px"><table>
+    <tr><th>Begriff</th><th>Bedeutung</th><th>Beispiel</th></tr>
+    <tr><td style="color:var(--k)">Klasse</td><td>Bauplan</td><td><code>Smartphone</code></td></tr>
+    <tr><td style="color:var(--o)">Objekt</td><td>bestimmtes Ding nach dem Bauplan</td><td><code>meinHandy</code></td></tr>
+    <tr><td style="color:var(--a)">Attribut</td><td>Eigenschaft</td><td><code>farbe</code></td></tr>
+    <tr><td style="color:var(--w)">Attributwert</td><td>Wert der Eigenschaft bei einem Objekt</td><td><code>"mint"</code></td></tr>
+    <tr><td style="color:var(--d)">Datentyp</td><td>Art des Wertes</td><td><code>Text</code></td></tr>
+    <tr><td style="color:var(--m)">Methode</td><td>Fähigkeit, was das Objekt tun kann</td><td><code>aufladen()</code></td></tr>
+  </table></div>
+  <div class="task-h"><span class="badge">Aufgabe</span> Klassenkarte „Schulranzen“</div>
+  <p class="hint">Du entwirfst die Klasse <code>Schulranzen</code>. Wohin gehört jeder Eintrag? Vorsicht: Nicht alles gehört in den Bauplan!</p>
+  <div id="task"></div>`;
+  classify($('#task'),[
+    {t:'<code>farbe : Text</code>', a:'A', w:'Eine Eigenschaft mit Datentyp → Attribut.', h:'Ist das eine Eigenschaft oder etwas, das der Ranzen tut?'},
+    {t:'<code>gewicht : Kommazahl</code>', a:'A', w:'Eigenschaft → Attribut.', h:'Kann der Ranzen „gewichten“? Oder hat er ein Gewicht?'},
+    {t:'<code>anzahlFaecher : Ganzzahl</code>', a:'A', w:'Eigenschaft → Attribut.', h:'Ist das etwas, das man tun kann?'},
+    {t:'<code>oeffnen()</code>', a:'M', w:'Runde Klammern, etwas tun → Methode.', h:'Achte auf die runden Klammern.'},
+    {t:'<code>buchEinpacken()</code>', a:'M', w:'Etwas tun → Methode.', h:'Achte auf die runden Klammern.'},
+    {t:'<code>farbe = "blau"</code>', a:'X', w:'Ein konkreter Wert gehört zu einem Objekt, nicht in den Bauplan.', h:'„blau“ ist ein konkreter Wert. Hat jeder Schulranzen diesen Wert?'},
+    {t:'<code>lenasRanzen</code>', a:'X', w:'Das ist ein Objekt – kein Teil des Bauplans.', h:'Ist das eine Eigenschaft – oder ein bestimmter Ranzen?'}
+  ],[{k:'A',l:'Attribut'},{k:'M',l:'Methode'},{k:'X',l:'gehört nicht in die Klasse'}],()=>complete('karte'));
+}
+
+/* ---------- Quiz ---------- */
+const QUIZ=[
+  {q:'Was ist eine Klasse?', o:['Ein Bauplan, der festlegt, welche Attribute und Methoden Objekte haben','Ein bestimmtes Ding, das man anfassen kann','Eine Eigenschaft wie Farbe oder Größe','Ein Wert wie "rot" oder 12'], why:'Eine Klasse ist der Bauplan – die Objekte werden danach gebaut.'},
+  {q:'Welches davon ist ein Objekt?', o:['Tims Fußball mit Unterschrift','Fußball','Sportgerät','Ball'], why:'Nur Tims Fußball ist ein ganz bestimmtes Ding. Die anderen beschreiben viele Dinge – das sind Klassen.'},
+  {q:'Bei <code>farbe = "blau"</code> – was ist <code>"blau"</code>?', o:['Ein Attributwert','Ein Attribut','Eine Klasse','Eine Methode'], why:'farbe ist das Attribut, "blau" ist sein Wert bei diesem Objekt.'},
+  {q:'Welcher Datentyp passt zu <code>akkustand = 87</code>?', o:['Ganzzahl','Text','Kommazahl','Wahrheitswert'], why:'87 ist eine Zahl ohne Komma.'},
+  {q:'Welcher Datentyp passt zu <code>istStummgeschaltet</code>?', o:['Wahrheitswert','Ganzzahl','Text','Kommazahl'], why:'Ein Handy ist entweder stumm (wahr) oder nicht (falsch).'},
+  {q:'Was ist eine Methode der Klasse <code>Hund</code>?', o:['<code>bellen()</code>','<code>fellfarbe</code>','<code>"Bello"</code>','<code>bello</code>'], why:'bellen() ist etwas, das ein Hund tun kann – erkennbar an den Klammern.'},
+  {q:'Was passiert bei <code>meinHandy.lauterStellen()</code>?', o:['Die Methode wird beim Objekt meinHandy aufgerufen – der Wert von lautstärke ändert sich','Es wird eine neue Klasse erstellt','Das Attribut lautstärke wird gelöscht','Alle Handys der Welt werden lauter'], why:'Objekt.Methode() ruft die Methode bei genau diesem einen Objekt auf.'},
+  {q:'Zwei Objekte derselben Klasse …', o:['… haben dieselben Attribute, aber können unterschiedliche Attributwerte haben','… müssen genau dieselben Attributwerte haben','… haben unterschiedliche Attribute','… können keine Methoden haben'], why:'Gleicher Bauplan = gleiche Attribute. Die Werte können verschieden sein (Luna ist 3, Bello ist 7).'},
+  {q:'Welcher Datentyp passt zu <code>preisPizza = 7,50</code>?', o:['Kommazahl','Ganzzahl','Text','Wahrheitswert'], why:'7,50 hat ein Komma.'},
+  {q:'Auf der Objektkarte steht <code style="text-decoration:underline">luna : Katze</code>. Was ist <code>Katze</code>?', o:['Die Klasse','Das Objekt','Ein Attribut','Ein Attributwert'], why:'Vor dem Doppelpunkt steht das Objekt, dahinter die Klasse, nach deren Bauplan es gebaut wurde.'}
+];
+function renderQuiz(m){
+  const qs=shuffle(QUIZ).map(q=>({...q, opts:shuffle(q.o.map((t,i)=>({t,ok:i===0})))}));
+  let i=0, score=0;
+  const show=()=>{
+    const q=qs[i];
+    m.innerHTML=`<div class="kicker">Abschlussquiz · Frage ${i+1} von ${qs.length}</div>
+      <div class="qprog"><div style="width:${i/qs.length*100}%"></div></div>
+      <h2 style="font-size:1.3rem">${q.q}</h2>
+      <p class="hint">Du hast nur einen Versuch pro Frage. Überleg gut!</p>
+      <div class="qopts">${q.opts.map((o,k)=>`<button class="qopt" data-k="${k}">${o.t}</button>`).join('')}</div>
+      <div id="why"></div>`;
+    m.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{
+      const o=q.opts[+b.dataset.k];
+      m.querySelectorAll('.qopt').forEach((x,k)=>{ x.disabled=true; if(q.opts[k].ok) x.classList.add('right'); });
+      if(o.ok) score++; else { b.classList.add('wrong'); buzz(); }
+      const last=i===qs.length-1;
+      $('#why').innerHTML=`<div class="qwhy"><b>${o.ok?'✓ Richtig!':'✗ Leider falsch.'}</b> ${q.why}</div>
+        <button class="btn" id="qn" style="width:100%;margin-top:14px">${last?'Zum Lösungswort 🎉':'Nächste Frage →'}</button>`;
+      $('#qn').onclick=()=>{
+        if(last){ S.result={score,total:qs.length,code:makeCode(S.vorname,S.nachname,S.klasse,score),date:new Date().toLocaleString('de-DE')}; S.done.quiz=true; save(); go(8); }
+        else { i++; show(); window.scrollTo(0,0); }
+      };
+      $('#qn').scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+  };
+  show();
+}
+
+/* ---------- Ergebnis ---------- */
+function renderErgebnis(m){
+  const r=S.result; if(!r){ go(7); return; }
+  const stars = r.score>=9?'⭐⭐⭐':r.score>=7?'⭐⭐':r.score>=5?'⭐':'';
+  const txt = r.score===r.total?'Perfekt! Du bist ein echter OOP-Profi!':r.score>=7?'Stark gemacht! Du hast die Begriffe gut verstanden.':r.score>=5?'Gut! Schau dir die Stationen nochmal an, dann klappt’s noch besser.':'Wiederhole die Stationen und versuch es dann nochmal.';
+  m.innerHTML=`<div class="result">
+    <div class="kicker">Geschafft!</div>
+    <h2>${esc(S.vorname)} ${esc(S.nachname)} <span style="color:var(--muted);font-weight:500">· ${esc(S.klasse)}</span></h2>
+    <div class="stars">${stars}</div>
+    <div class="score">${r.score} / ${r.total}</div>
+    <p>${txt}</p>
+    <div class="card">
+      <div style="font-weight:800">Dein persönliches Lösungswort</div>
+      <div class="lw">${r.code}</div>
+      <p class="hint" style="margin:0">Schreib es ab oder zeig diesen Bildschirm deiner Lehrkraft.</p>
+      <div class="meta" style="margin-top:6px">${esc(r.date)}</div>
+    </div>
+    <button class="btn ghost" id="again" style="width:100%">Quiz wiederholen</button>
+    <button class="btn ghost" id="review" style="width:100%;margin-top:10px">Stationen nochmal ansehen</button>
+  </div>`;
+  $('#again').onclick=()=>go(7);
+  $('#review').onclick=()=>go(1);
+}
+
+/* ---------- Lehrkraft ---------- */
+function renderTeacher(m){
+  m.innerHTML=`<div class="kicker">Für Lehrkräfte</div><h2>Lösungswort prüfen</h2>
+  <p>Das Lösungswort wird aus Vorname, Nachname und Klasse berechnet und enthält die Punktzahl (Format <code>WORT-Punkte-PRÜF</code>). Wer Namen oder Punktzahl verändert, erhält ein ungültiges Wort. Groß-/Kleinschreibung und Leerzeichen spielen beim Namen keine Rolle.</p>
+  <div class="card"><form id="tf">
+    <label class="f" for="tvn">Vorname</label><input class="f" id="tvn" required>
+    <label class="f" for="tnn">Nachname</label><input class="f" id="tnn" required>
+    <label class="f" for="tkl">Klasse</label><input class="f" id="tkl" required>
+    <label class="f" for="tc">Lösungswort</label><input class="f mono" id="tc" required placeholder="z. B. KOMET-8-QX4F" autocapitalize="characters">
+    <button class="btn" style="width:100%;margin-top:14px">Prüfen</button>
+  </form><div id="tres"></div></div>
+  <button class="btn ghost" id="tback">← Zurück zur App</button>`;
+  $('#tf').onsubmit=e=>{
+    e.preventDefault();
+    const code=$('#tc').value.trim().toUpperCase().replace(/\s+/g,'');
+    const mt=code.match(/^([A-Z]+)-(\d{1,2})-([A-Z0-9]{4})$/);
+    const out=$('#tres');
+    if(mt && makeCode($('#tvn').value,$('#tnn').value,$('#tkl').value,+mt[2])===code){
+      out.innerHTML=`<div class="verify ok">✓ Gültig – ${+mt[2]} von ${QUIZ.length} Quizfragen richtig.</div>`;
+    } else {
+      out.innerHTML=`<div class="verify bad">✗ Passt nicht zu diesem Namen. Schreibweise von Name und Klasse prüfen (z. B. „7a“ vs. „7 a“ ist egal, „7a“ vs. „7b“ nicht).</div>`;
+    }
+  };
+  $('#tback').onclick=()=>{ history.replaceState(null,'',location.pathname+location.search); teacherView=false; render(); };
+}
+function checkHash(){ teacherView = location.hash==='#lehrer'; render(); window.scrollTo(0,0); }
+window.addEventListener('hashchange',checkHash);
+
+/* ---------- Start ---------- */
+if(!canGo(S.step)) S.step=0;
+if(S.step===8 && !S.result) S.step=7;
+teacherView = location.hash==='#lehrer';
+render();
+</script>
+</body>
+</html>
